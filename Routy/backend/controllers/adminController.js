@@ -90,7 +90,7 @@ export const adminController = {
   }),
 
   getSystemLogs: asyncHandler(async (req, res) => {
-    // Implement system logs retrieval
+    
     res.json({ message: 'System logs functionality to be implemented' });
   }),
 

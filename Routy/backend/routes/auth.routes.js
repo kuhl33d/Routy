@@ -1,4 +1,3 @@
-// routes/auth.routes.js
 import express from 'express';
 import { authController } from '../controllers/authController.js';
 import { auth } from '../middleware/auth.js';
@@ -11,7 +10,7 @@ router.post('/register', authValidation.register, validate, authController.regis
 router.post('/login', authValidation.login, validate, authController.login);
 router.get('/profile', auth, authController.getProfile);
 
-// Protected routes
+
 router.use(auth);
 router.get('/profile', authController.getProfile);
 router.put('/profile', authValidation.updateProfile, validate, authController.updateProfile);

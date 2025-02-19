@@ -6,8 +6,8 @@ const subscriptionSchema = new mongoose.Schema(
       type: String,
       required: [true, "Plan is required"],
       default: "Free",
-      // default: "Free",
-      //       enum: ["Free", "Pro", "Enterprise"],
+      
+      
     },
     startDate: {
       type: Date,
@@ -17,7 +17,7 @@ const subscriptionSchema = new mongoose.Schema(
     endDate: {
       type: Date,
       required: [true, "End date is required"],
-      default: () => Date.now() + 130 * 24 * 60 * 60 * 1000, // 130 days
+      default: () => Date.now() + 130 * 24 * 60 * 60 * 1000, 
     },
     active: { type: Boolean, default: true },
     amount: { type: Number, default: 0, min: 0 },

@@ -10,7 +10,7 @@ export const createNotification = async (userId, message, type = 'info') => {
     });
     await notification.save();
 
-    // Send real-time notification
+    
     sendToUser(userId, {
       type: 'notification',
       data: notification

@@ -18,7 +18,7 @@ export const driverController = {
       vehicleType 
     } = req.body;
 
-    // Create user account for driver
+    
     const user = new User({
       email,
       password,
@@ -27,7 +27,7 @@ export const driverController = {
     });
     await user.save();
 
-    // Create driver profile
+    
     const driver = new Driver({
       userId: user._id,
       name,
@@ -99,15 +99,15 @@ export const driverController = {
       throw error;
     }
 
-    // Remove driver from associated bus
+    
     if (driver.busId) {
       await Bus.findByIdAndUpdate(driver.busId, { driverId: null });
     }
 
-    // Delete driver's user account
+    
     await User.findByIdAndDelete(driver.userId);
 
-    // Delete driver
+    
     await driver.delete();
 
     res.json({ message: 'Driver deleted successfully' });
@@ -151,7 +151,7 @@ export const driverController = {
       throw error;
     }
 
-    // Update bus status
+    
     const bus = await Bus.findByIdAndUpdate(
       driver.busId._id,
       { 
@@ -162,7 +162,7 @@ export const driverController = {
       { new: true }
     );
 
-    // Notify relevant parents
+    
     const students = await Student.find({ busId: bus._id })
       .populate('parentId');
 
@@ -197,7 +197,7 @@ export const driverController = {
       throw error;
     }
 
-    // Update bus status
+    
     const bus = await Bus.findByIdAndUpdate(
       driver.busId._id,
       { 
@@ -208,7 +208,7 @@ export const driverController = {
       { new: true }
     );
 
-    // Notify relevant parents
+    
     const students = await Student.find({ busId: bus._id })
       .populate('parentId');
 
@@ -245,7 +245,7 @@ export const driverController = {
       throw error;
     }
 
-    // Update bus location
+    
     const bus = await Bus.findByIdAndUpdate(
       driver.busId._id,
       { 
@@ -255,7 +255,7 @@ export const driverController = {
       { new: true }
     );
 
-    // Broadcast location update to relevant clients
+    
     const students = await Student.find({ busId: bus._id })
       .populate('parentId');
 

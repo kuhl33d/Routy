@@ -22,15 +22,15 @@ export const validateObjectIdExists = async (modelName, id) => {
  * @returns {string}
  */
 export const formatPhoneNumber = (phoneNumber) => {
-  // Remove all non-numeric characters
+  
   const cleaned = phoneNumber.replace(/\D/g, '');
   
-  // Check if it's a valid number
+  
   if (cleaned.length < 10) {
     throw new Error('Invalid phone number');
   }
 
-  // Format as: +X (XXX) XXX-XXXX
+  
   return `+${cleaned.slice(0, -10)} (${cleaned.slice(-10, -7)}) ${cleaned.slice(-7, -4)}-${cleaned.slice(-4)}`;
 };
 
@@ -41,7 +41,7 @@ export const formatPhoneNumber = (phoneNumber) => {
  * @returns {number} Distance in kilometers
  */
 export const calculateDistance = (coord1, coord2) => {
-  const R = 6371; // Earth's radius in km
+  const R = 6371; 
   const dLat = toRad(coord2.latitude - coord1.latitude);
   const dLon = toRad(coord2.longitude - coord1.longitude);
   const lat1 = toRad(coord1.latitude);
@@ -88,7 +88,7 @@ export const generateRandomString = (length = 10) => {
  */
 export const isWithinOperatingHours = (time) => {
   const hour = time.getHours();
-  return hour >= 6 && hour <= 18; // 6 AM to 6 PM
+  return hour >= 6 && hour <= 18; 
 };
 
 /**
@@ -97,7 +97,7 @@ export const isWithinOperatingHours = (time) => {
  * @returns {boolean}
  */
 export const isValidLicensePlate = (plateNumber) => {
-  // Customize this regex based on your license plate format
+  
   const plateRegex = /^[A-Z0-9]{3,8}$/;
   return plateRegex.test(plateNumber.toUpperCase());
 };
@@ -153,11 +153,11 @@ export const calculateETA = (currentLocation, destination, averageSpeed = 30) =>
  * @returns {boolean}
  */
 export const doRoutesIntersect = (route1, route2) => {
-  // Implementation of route intersection logic
-  // This is a simplified version
+  
+  
   for (let i = 0; i < route1.length; i++) {
     for (let j = 0; j < route2.length; j++) {
-      if (calculateDistance(route1[i], route2[j]) < 0.1) { // Within 100 meters
+      if (calculateDistance(route1[i], route2[j]) < 0.1) { 
         return true;
       }
     }

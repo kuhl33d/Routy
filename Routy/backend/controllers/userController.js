@@ -6,7 +6,7 @@ const userController = {
   create: asyncHandler(async (req, res) => {
     const { email, password, name, role, phoneNumber, address } = req.body;
 
-    // Check if email already exists
+    
     const existingUser = await User.findOne({ email });
     if (existingUser) {
       const error = new Error('Email already registered');
@@ -14,7 +14,7 @@ const userController = {
       throw error;
     }
 
-    // Create new user
+    
     const user = new User({
       email,
       password,
@@ -22,13 +22,13 @@ const userController = {
       role: role || 'user',
       phones: phoneNumber ? [phoneNumber] : [],
       addresses: address ? [address] : [],
-      isVerified: true, // Since admin is creating the user
+      isVerified: true, 
       active: true
     });
 
     await user.save();
 
-    // Create specific role-based profile if needed
+    
     if (role) {
       switch (role) {
         case 'driver':
@@ -57,13 +57,13 @@ const userController = {
       }
     }
 
-    // Generate welcome notification
+    
     await createNotification(
       user._id,
       'Welcome to the system! Your account has been created by an administrator.'
     );
 
-    // Send response without password
+    
     const userResponse = user.toObject();
     delete userResponse.password;
 
@@ -126,7 +126,7 @@ const userController = {
       throw error;
     }
 
-    // Check email uniqueness if email is being changed
+    
     if (email && email !== user.email) {
       const existingUser = await User.findOne({ email });
       if (existingUser) {
@@ -136,7 +136,7 @@ const userController = {
       }
     }
 
-    // Update fields
+    
     if (name) user.name = name;
     if (email) user.email = email;
     if (role) user.role = role;
@@ -144,7 +144,7 @@ const userController = {
 
     await user.save();
 
-    // Create notification for role change
+    
     if (role && role !== user.role) {
       await createNotification(user._id, `Your role has been updated to ${role}`);
     }
@@ -160,7 +160,7 @@ const userController = {
       throw error;
     }
 
-    // Soft delete
+    
     user.active = false;
     user.deleted = true;
     await user.save();

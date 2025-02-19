@@ -6,12 +6,12 @@ export const schoolController = {
   create: asyncHandler(async (req, res) => {
     const { name, address, phoneNumber, email, adminEmails, website } = req.body;
 
-    // Create school admin user accounts
+    
     const adminUsers = await Promise.all(
       adminEmails.map(async (email) => {
         const user = new User({
           email,
-          password: Math.random().toString(36).slice(-8), // Generate random password
+          password: Math.random().toString(36).slice(-8), 
           name: `${name} Admin`,
           role: 'school'
         });
@@ -82,7 +82,7 @@ export const schoolController = {
       throw error;
     }
 
-    // Delete associated admin users
+    
     await User.deleteMany({ _id: { $in: school.adminUsers } });
 
     res.json({ message: 'School deleted successfully' });

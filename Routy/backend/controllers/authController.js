@@ -106,17 +106,17 @@ export const authController = {
     res.json({ message: 'Password updated successfully' });
   }),
   logout: asyncHandler(async (req, res) => {
-    // If you're using refresh tokens, you might want to invalidate them here
+    
     const user = await User.findById(req.user.id);
     
     if (user) {
-      // Update last logout timestamp
+      
       user.lastLogin = Date.now();
       await user.save();
     }
 
-    // You might want to add the token to a blacklist if you're implementing token invalidation
-    // await BlacklistedToken.create({ token: req.token });
+    
+    
 
     res.json({ 
       message: 'Logged out successfully',

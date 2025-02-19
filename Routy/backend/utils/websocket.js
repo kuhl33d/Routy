@@ -8,7 +8,7 @@ export const initializeWebSocket = (server) => {
 
   wss.on('connection', async (ws, req) => {
     try {
-      // Extract token from query string
+      
       const url = new URL(req.url, 'http://localhost');
       const token = url.searchParams.get('token');
       
@@ -24,7 +24,7 @@ export const initializeWebSocket = (server) => {
       ws.isAlive = true;
       ws.on('pong', () => { ws.isAlive = true; });
 
-      // Send initial connection success message
+      
       ws.send(JSON.stringify({
         type: 'connection',
         status: 'success',
@@ -50,7 +50,7 @@ export const initializeWebSocket = (server) => {
     }
   });
 
-  // Implement heartbeat
+  
   const interval = setInterval(() => {
     wss.clients.forEach((ws) => {
       if (ws.isAlive === false) return ws.terminate();
@@ -99,7 +99,7 @@ const handleLocationUpdate = async (ws, message) => {
     return;
   }
 
-  // Broadcast location update to relevant clients
+  
   broadcastToRole('parent', {
     type: 'location_update',
     data: message.data
@@ -115,7 +115,7 @@ const handleStatusUpdate = async (ws, message) => {
     return;
   }
 
-  // Broadcast status update to relevant clients
+  
   broadcastToRole('parent', {
     type: 'status_update',
     data: message.data

@@ -1,6 +1,6 @@
 import  Parent  from '../models/parent.model.js';
 import  User  from '../models/user.model.js';
-// import { Student } from '../models/student.model.js';
+
 import { asyncHandler } from '../utils/asyncHandler.js';
 import { createNotification } from '../utils/notifications.js';
 
@@ -8,7 +8,7 @@ export const parentController = {
   create: asyncHandler(async (req, res) => {
     const { name, email, password, phone, address, children } = req.body;
 
-    // Create user account
+    
     const user = new User({
       email,
       password,
@@ -17,7 +17,7 @@ export const parentController = {
     });
     await user.save();
 
-    // Create parent profile
+    
     const parent = new Parent({
       userId: user._id,
       name,
@@ -62,14 +62,14 @@ export const parentController = {
       throw error;
     }
 
-    // Update parent profile
+    
     if (name) parent.name = name;
     if (phone) parent.phone = phone;
     if (address) parent.address = address;
 
     await parent.save();
 
-    // Update user account if email is changed
+    
     if (email) {
       await User.findByIdAndUpdate(parent.userId, { email });
     }
@@ -86,9 +86,9 @@ export const parentController = {
       throw error;
     }
 
-    // Delete user account
+    
     await User.findByIdAndDelete(parent.userId);
-    // Delete parent profile
+    
     await parent.remove();
 
     res.json({ message: 'Parent deleted successfully' });

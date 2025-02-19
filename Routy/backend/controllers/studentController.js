@@ -77,7 +77,7 @@ export const studentController = {
       throw error;
     }
 
-    // Create attendance record
+    
     if (status === 'Picked Up' || status === 'Dropped Off') {
       await Attendance.create({
         studentId: student._id,

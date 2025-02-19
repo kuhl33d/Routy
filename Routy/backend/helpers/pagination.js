@@ -1,7 +1,7 @@
 const DEFAULT_PAGE = 1;
 const DEFAULT_LIMIT = 10;
 
-// Core pagination function
+
 
 /**
  * Paginates a MongoDB query and returns a promise that resolves to an object with
@@ -24,17 +24,17 @@ export async function paginateQuery(page, limit, query, useLean = true) {
     page = Math.max(Number(page) || DEFAULT_PAGE, 1);
     limit = Math.max(Number(limit) || DEFAULT_LIMIT, 1);
 
-    // Clone the query to count the total number of documents
+    
     const countQuery = query.model.find(query.getFilter());
     const total = await countQuery.countDocuments();
 
-    // Calculate skip and pages
+    
     const { skip, pages } = calculatePagination(page, limit, total);
 
-    // Adjust page number if it exceeds total pages
+    
     page = Math.min(page, pages);
 
-    // Execute the paginated query
+    
     const results = await query.skip(skip).limit(limit).lean(useLean).exec();
 
     return {
@@ -54,7 +54,7 @@ export async function paginateQuery(page, limit, query, useLean = true) {
   }
 }
 
-// Calculate skip and pages
+
 export function calculatePagination(page, limit, total) {
   const pages = Math.ceil(total / limit);
   const skip = (page - 1) * limit;

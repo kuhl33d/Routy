@@ -71,8 +71,8 @@ export const routeController = {
       throw error;
     }
 
-    // Implement route optimization logic here
-    // This could include calculating the most efficient order of stops
+    
+    
     
     res.json(route);
   })
