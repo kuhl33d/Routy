@@ -1,4 +1,4 @@
-import { Notification } from '../models/notification.model.js';
+import  Notification  from '../models/notification.model.js';
 import { sendToUser } from './websocket.js';
 
 export const createNotification = async (userId, message, type = 'info') => {

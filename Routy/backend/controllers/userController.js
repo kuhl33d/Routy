@@ -1,55 +1,19 @@
+import User from '../models/user.model.js';
 import { asyncHandler } from '../utils/asyncHandler.js';
-import  User  from '../models/user.model.js';
-import  School  from '../models/school.model.js';
-import  Bus  from '../models/bus.model.js';
-import  Driver  from '../models/driver.model.js';
-import  Route  from '../models/route.model.js';
-import  Student  from '../models/student.model.js';
+import { createNotification } from '../utils/notifications.js';
 
-export const adminController = {
-  getDashboardStats: asyncHandler(async (req, res) => {
-    const stats = await Promise.all([
-      User.countDocuments({ role: 'parent' }),
-      User.countDocuments({ role: 'driver' }),
-      School.countDocuments(),
-      Bus.countDocuments(),
-      Route.countDocuments(),
-      Student.countDocuments()
-    ]);
+const userController = {
+  getAll: asyncHandler(async (req, res) => {
+    const { page = 1, limit = 10, role, search } = req.query;
 
-    res.json({
-      totalParents: stats[0],
-      totalDrivers: stats[1],
-      totalSchools: stats[2],
-      totalBuses: stats[3],
-      totalRoutes: stats[4],
-      totalStudents: stats[5]
-    });
-  }),
-
-  getSystemOverview: asyncHandler(async (req, res) => {
-    const activeRoutes = await Route.find()
-      .populate('busses', 'status currentLocation')
-      .populate('stops.address');
-
-    const activeBuses = await Bus.find({ status: 'On Route' })
-      .populate('driverId', 'name phoneNumber')
-      .populate('routeId', 'name');
-
-    const recentAlerts = await Notification.find()
-      .sort('-createdAt')
-      .limit(10);
-
-    res.json({
-      activeRoutes,
-      activeBuses,
-      recentAlerts
-    });
-  }),
-
-  manageUsers: asyncHandler(async (req, res) => {
-    const { role, page = 1, limit = 10 } = req.query;
-    const query = role ? { role } : {};
+    const query = {};
+    if (role) query.role = role;
+    if (search) {
+      query.$or = [
+        { name: { $regex: search, $options: 'i' } },
+        { email: { $regex: search, $options: 'i' } }
+      ];
+    }
 
     const users = await User.find(query)
       .select('-password')
@@ -64,21 +28,15 @@ export const adminController = {
       pagination: {
         total,
         pages: Math.ceil(total / limit),
-        currentPage: page,
-        limit
+        currentPage: parseInt(page),
+        limit: parseInt(limit)
       }
     });
   }),
 
-  updateUserStatus: asyncHandler(async (req, res) => {
-    const { userId } = req.params;
-    const { active } = req.body;
-
-    const user = await User.findByIdAndUpdate(
-      userId,
-      { active },
-      { new: true }
-    ).select('-password');
+  getById: asyncHandler(async (req, res) => {
+    const user = await User.findById(req.params.id)
+      .select('-password');
 
     if (!user) {
       const error = new Error('User not found');
@@ -89,20 +47,118 @@ export const adminController = {
     res.json(user);
   }),
 
-  getSystemLogs: asyncHandler(async (req, res) => {
-    // Implement system logs retrieval
-    res.json({ message: 'System logs functionality to be implemented' });
+  update: asyncHandler(async (req, res) => {
+    const { name, email, role, active } = req.body;
+
+    const user = await User.findById(req.params.id);
+    if (!user) {
+      const error = new Error('User not found');
+      error.status = 404;
+      throw error;
+    }
+
+    // Check email uniqueness if email is being changed
+    if (email && email !== user.email) {
+      const existingUser = await User.findOne({ email });
+      if (existingUser) {
+        const error = new Error('Email already in use');
+        error.status = 400;
+        throw error;
+      }
+    }
+
+    // Update fields
+    if (name) user.name = name;
+    if (email) user.email = email;
+    if (role) user.role = role;
+    if (typeof active === 'boolean') user.active = active;
+
+    await user.save();
+
+    // Create notification for role change
+    if (role && role !== user.role) {
+      await createNotification(user._id, `Your role has been updated to ${role}`);
+    }
+
+    res.json(user);
   }),
 
-  getAnalytics: asyncHandler(async (req, res) => {
-    const { startDate, endDate } = req.query;
+  delete: asyncHandler(async (req, res) => {
+    const user = await User.findById(req.params.id);
+    if (!user) {
+      const error = new Error('User not found');
+      error.status = 404;
+      throw error;
+    }
 
-    const analytics = {
-      routeEfficiency: await calculateRouteEfficiency(startDate, endDate),
-      busUtilization: await calculateBusUtilization(startDate, endDate),
-      studentAttendance: await calculateStudentAttendance(startDate, endDate)
+    // Soft delete
+    user.active = false;
+    user.deleted = true;
+    await user.save();
+
+    res.json({ message: 'User deleted successfully' });
+  }),
+
+  getNotifications: asyncHandler(async (req, res) => {
+    const { page = 1, limit = 10 } = req.query;
+
+    const notifications = await Notification.find({ userId: req.user.id })
+      .sort('-createdAt')
+      .skip((page - 1) * limit)
+      .limit(limit);
+
+    const total = await Notification.countDocuments({ userId: req.user.id });
+
+    res.json({
+      notifications,
+      pagination: {
+        total,
+        pages: Math.ceil(total / limit),
+        currentPage: parseInt(page),
+        limit: parseInt(limit)
+      }
+    });
+  }),
+
+  markNotificationRead: asyncHandler(async (req, res) => {
+    const { notificationId } = req.params;
+
+    const notification = await Notification.findOneAndUpdate(
+      { _id: notificationId, userId: req.user.id },
+      { read: true },
+      { new: true }
+    );
+
+    if (!notification) {
+      const error = new Error('Notification not found');
+      error.status = 404;
+      throw error;
+    }
+
+    res.json(notification);
+  }),
+
+  updatePreferences: asyncHandler(async (req, res) => {
+    const { notifications, language, theme } = req.body;
+
+    const user = await User.findById(req.user.id);
+    if (!user) {
+      const error = new Error('User not found');
+      error.status = 404;
+      throw error;
+    }
+
+    user.preferences = {
+      ...user.preferences,
+      notifications,
+      language,
+      theme
     };
 
-    res.json(analytics);
+    await user.save();
+
+    res.json(user.preferences);
   })
 };
+
+export default userController;

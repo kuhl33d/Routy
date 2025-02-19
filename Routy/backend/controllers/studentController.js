@@ -1,5 +1,5 @@
-import { Student } from '../models/student.model.js';
-import { Attendance } from '../models/attendance.model.js';
+import  Student  from '../models/student.model.js';
+import  Attendance  from '../models/attendance.model.js';
 import { asyncHandler } from '../utils/asyncHandler.js';
 
 export const studentController = {

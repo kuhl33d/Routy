@@ -1,7 +1,7 @@
-import { Driver } from '../models/driver.model.js';
-import { Bus } from '../models/bus.model.js';
-import { Route } from '../models/route.model.js';
-import { Student } from '../models/student.model.js';
+import Driver from '../models/driver.model.js';
+import Bus  from '../models/bus.model.js';
+import Route from '../models/route.model.js';
+import Student from '../models/student.model.js';
 import  User  from '../models/user.model.js';
 import { createNotification } from '../utils/notifications.js';
 import { asyncHandler } from '../utils/asyncHandler.js';

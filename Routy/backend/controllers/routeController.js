@@ -1,4 +1,4 @@
-import { Route } from '../models/route.model.js';
+import Route from '../models/route.model.js';
 import { asyncHandler } from '../utils/asyncHandler.js';
 import { geocodeAddress } from '../utils/geocoding.js';
 

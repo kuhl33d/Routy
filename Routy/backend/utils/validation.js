@@ -217,3 +217,188 @@ export const schoolValidation = [
     .isEmail()
     .withMessage('Invalid admin email format')
 ];
+
+export const parentValidation = {
+  create: [
+    body('name')
+      .trim()
+      .notEmpty()
+      .withMessage('Name is required'),
+    body('email')
+      .isEmail()
+      .withMessage('Invalid email address')
+      .normalizeEmail(),
+    body('password')
+      .isLength({ min: 6 })
+      .withMessage('Password must be at least 6 characters long'),
+    body('phone')
+      .isArray()
+      .withMessage('Phone numbers must be an array')
+      .notEmpty()
+      .withMessage('At least one phone number is required'),
+    body('phone.*')
+      .matches(/^\+?[\d\s-]+$/)
+      .withMessage('Invalid phone number format'),
+    body('address')
+      .isMongoId()
+      .withMessage('Invalid address ID'),
+    body('children')
+      .optional()
+      .isArray()
+      .withMessage('Children must be an array'),
+    body('children.*')
+      .optional()
+      .isMongoId()
+      .withMessage('Invalid student ID')
+  ],
+
+  update: [
+    body('name')
+      .optional()
+      .trim()
+      .notEmpty()
+      .withMessage('Name cannot be empty'),
+    body('email')
+      .optional()
+      .isEmail()
+      .withMessage('Invalid email address')
+      .normalizeEmail(),
+    body('phone')
+      .optional()
+      .isArray()
+      .withMessage('Phone numbers must be an array'),
+    body('phone.*')
+      .matches(/^\+?[\d\s-]+$/)
+      .withMessage('Invalid phone number format'),
+    body('address')
+      .optional()
+      .isMongoId()
+      .withMessage('Invalid address ID'),
+    body('children')
+      .optional()
+      .isArray()
+      .withMessage('Children must be an array'),
+    body('children.*')
+      .isMongoId()
+      .withMessage('Invalid student ID')
+  ],
+
+  addChild: [
+    body('studentId')
+      .isMongoId()
+      .withMessage('Invalid student ID')
+  ],
+
+  removeChild: [
+    body('studentId')
+      .isMongoId()
+      .withMessage('Invalid student ID')
+  ],
+
+  updateNotificationPreferences: [
+    body('emailNotifications')
+      .optional()
+      .isBoolean()
+      .withMessage('Email notifications must be boolean'),
+    body('smsNotifications')
+      .optional()
+      .isBoolean()
+      .withMessage('SMS notifications must be boolean'),
+    body('pushNotifications')
+      .optional()
+      .isBoolean()
+      .withMessage('Push notifications must be boolean'),
+    body('notificationTypes')
+      .optional()
+      .isArray()
+      .withMessage('Notification types must be an array'),
+    body('notificationTypes.*')
+      .isIn(['pickup', 'dropoff', 'delay', 'emergency', 'announcement'])
+      .withMessage('Invalid notification type')
+  ],
+
+  updateEmergencyContacts: [
+    body('contacts')
+      .isArray()
+      .withMessage('Contacts must be an array')
+      .notEmpty()
+      .withMessage('At least one emergency contact is required'),
+    body('contacts.*.name')
+      .trim()
+      .notEmpty()
+      .withMessage('Contact name is required'),
+    body('contacts.*.relationship')
+      .trim()
+      .notEmpty()
+      .withMessage('Contact relationship is required'),
+    body('contacts.*.phone')
+      .matches(/^\+?[\d\s-]+$/)
+      .withMessage('Invalid phone number format'),
+    body('contacts.*.email')
+      .optional()
+      .isEmail()
+      .withMessage('Invalid email format'),
+    body('contacts.*.isEmergency')
+      .isBoolean()
+      .withMessage('isEmergency must be boolean'),
+    body('contacts.*.canPickup')
+      .isBoolean()
+      .withMessage('canPickup must be boolean')
+  ],
+
+  updatePickupPreferences: [
+    body('defaultPickupPerson')
+      .trim()
+      .notEmpty()
+      .withMessage('Default pickup person is required'),
+    body('alternatePickupPersons')
+      .isArray()
+      .withMessage('Alternate pickup persons must be an array'),
+    body('alternatePickupPersons.*.name')
+      .trim()
+      .notEmpty()
+      .withMessage('Pickup person name is required'),
+    body('alternatePickupPersons.*.relationship')
+      .trim()
+      .notEmpty()
+      .withMessage('Pickup person relationship is required'),
+    body('alternatePickupPersons.*.phone')
+      .matches(/^\+?[\d\s-]+$/)
+      .withMessage('Invalid phone number format'),
+    body('specialInstructions')
+      .optional()
+      .trim()
+      .isLength({ max: 500 })
+      .withMessage('Special instructions cannot exceed 500 characters')
+  ],
+
+  updateAddress: [
+    body('addressType')
+      .isIn(['home', 'work', 'other'])
+      .withMessage('Invalid address type'),
+    body('street')
+      .trim()
+      .notEmpty()
+      .withMessage('Street is required'),
+    body('city')
+      .trim()
+      .notEmpty()
+      .withMessage('City is required'),
+    body('state')
+      .trim()
+      .notEmpty()
+      .withMessage('State is required'),
+    body('zipCode')
+      .trim()
+      .matches(/^\d{5}(-\d{4})?$/)
+      .withMessage('Invalid ZIP code format'),
+    body('country')
+      .trim()
+      .notEmpty()
+      .withMessage('Country is required'),
+    body('isDefault')
+      .optional()
+      .isBoolean()
+      .withMessage('isDefault must be boolean')
+  ]
+};
