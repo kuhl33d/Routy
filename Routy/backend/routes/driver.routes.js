@@ -3,7 +3,7 @@ import { driverController } from '../controllers/driverController.js';
 import { auth } from '../middleware/auth.js';
 import { checkRole } from '../middleware/roleCheck.js';
 import { validate } from '../middleware/validate.js';
-import { driverValidation } from '../utils/validations.js';
+import { driverValidation } from '../utils/validation.js';
 
 const router = express.Router();
 

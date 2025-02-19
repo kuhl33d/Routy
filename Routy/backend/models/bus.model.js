@@ -1,5 +1,5 @@
 const mongoose = require("mongoose");
-import validateObjectIdExists from "../helpers/helpers";
+import validateObjectIdExists from "../helpers/helpers.js";
 
 const busSchema = new mongoose.Schema(
   {
@@ -61,4 +61,4 @@ const busSchema = new mongoose.Schema(
 
 const Bus = mongoose.model("Bus", busSchema);
 
-module.exports = Bus;
+export default Bus;

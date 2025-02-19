@@ -3,7 +3,7 @@ import { busController } from '../controllers/busController.js';
 import { auth } from '../middleware/auth.js';
 import { checkRole } from '../middleware/roleCheck.js';
 import { validate } from '../middleware/validate.js';
-import { busValidation } from '../utils/validations.js';
+import { busValidation } from '../utils/validation.js';
 
 const router = express.Router();
 

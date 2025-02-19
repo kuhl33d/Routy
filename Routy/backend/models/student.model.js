@@ -1,5 +1,5 @@
 const mongoose = require("mongoose");
-import validateObjectIdExists from "../helpers/helpers";
+import validateObjectIdExists from "../helpers/helpers.js";
 
 const studentSchema = new mongoose.Schema({
   name: {
@@ -65,4 +65,4 @@ const studentSchema = new mongoose.Schema({
 
 const Student = mongoose.model("Student", studentSchema);
 
-module.exports = Student;
+export default Student;

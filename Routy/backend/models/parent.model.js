@@ -46,4 +46,4 @@ const parentSchema = new mongoose.Schema(
 
 const Parent = mongoose.model("Parent", parentSchema);
 
-module.exports = Parent;
+export default Parent;

@@ -3,7 +3,7 @@ import { parentController } from '../controllers/parentController.js';
 import { auth } from '../middleware/auth.js';
 import { checkRole } from '../middleware/roleCheck.js';
 import { validate } from '../middleware/validate.js';
-import { parentValidation } from '../utils/validations.js';
+import { parentValidation } from '../utils/validation.js';
 
 const router = express.Router();
 

@@ -3,7 +3,7 @@ import { schoolController } from '../controllers/schoolController.js';
 import { auth } from '../middleware/auth.js';
 import { checkRole } from '../middleware/roleCheck.js';
 import { validate } from '../middleware/validate.js';
-import { schoolValidation } from '../utils/validations.js';
+import { schoolValidation } from '../utils/validation.js';
 
 const router = express.Router();
 
