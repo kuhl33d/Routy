@@ -1,6 +1,7 @@
-const mongoose = require("mongoose");
-const { validateObjectIdExists } = require("../helpers/helpers");
-
+// const mongoose = require("mongoose");
+import mongoose from "mongoose";
+// const { validateObjectIdExists } = require("../helpers/helpers.js");
+import { validateObjectIdExists } from "../helpers/helpers.js";
 const schoolSchema = new mongoose.Schema(
   {
     name: {

@@ -40,6 +40,27 @@ export const authValidation = {
       .isEmail()
       .withMessage('Invalid email address')
       .normalizeEmail()
+  ],
+
+  changePassword: [
+    body('currentPassword')
+      .notEmpty()
+      .withMessage('Current password is required'),
+    body('newPassword')
+      .isLength({ min: 6 })
+      .withMessage('New password must be at least 6 characters long')
+      .not()
+      .equals('currentPassword')
+      .withMessage('New password must be different from current password'),
+    body('confirmPassword')
+      .notEmpty()
+      .withMessage('Password confirmation is required')
+      .custom((value, { req }) => {
+        if (value !== req.body.newPassword) {
+          throw new Error('Password confirmation does not match new password');
+        }
+        return true;
+      })
   ]
 };
 

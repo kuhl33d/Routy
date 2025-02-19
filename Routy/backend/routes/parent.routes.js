@@ -9,9 +9,10 @@ const router = express.Router();
 
 router.use(auth);
 
+// Use parentValidation.create instead of parentValidation
 router.post('/', 
   checkRole('admin'), 
-  parentValidation, 
+  parentValidation.create,  // Changed this line
   validate, 
   parentController.create
 );
@@ -21,11 +22,14 @@ router.get('/',
   parentController.getAll
 );
 
-router.get('/:id', parentController.getById);
+router.get('/:id', 
+  parentController.getById
+);
 
+// Use parentValidation.update instead of parentValidation
 router.put('/:id', 
   checkRole('admin'), 
-  parentValidation, 
+  parentValidation.update,  // Changed this line
   validate, 
   parentController.update
 );
@@ -37,6 +41,45 @@ router.delete('/:id',
 
 router.get('/:id/children-location',
   parentController.getChildrenLocation
+);
+
+// Add routes for other parent-specific operations
+router.post('/:id/add-child',
+  checkRole('admin'),
+  parentValidation.addChild,
+  validate,
+  parentController.addChild
+);
+
+router.delete('/:id/remove-child',
+  checkRole('admin'),
+  parentValidation.removeChild,
+  validate,
+  parentController.removeChild
+);
+
+router.put('/:id/notification-preferences',
+  parentValidation.updateNotificationPreferences,
+  validate,
+  parentController.updateNotificationPreferences
+);
+
+router.put('/:id/emergency-contacts',
+  parentValidation.updateEmergencyContacts,
+  validate,
+  parentController.updateEmergencyContacts
+);
+
+router.put('/:id/pickup-preferences',
+  parentValidation.updatePickupPreferences,
+  validate,
+  parentController.updatePickupPreferences
+);
+
+router.put('/:id/address',
+  parentValidation.updateAddress,
+  validate,
+  parentController.updateAddress
 );
 
 export default router;

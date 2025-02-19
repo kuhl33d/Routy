@@ -3,6 +3,75 @@ import { asyncHandler } from '../utils/asyncHandler.js';
 import { createNotification } from '../utils/notifications.js';
 
 const userController = {
+  create: asyncHandler(async (req, res) => {
+    const { email, password, name, role, phoneNumber, address } = req.body;
+
+    // Check if email already exists
+    const existingUser = await User.findOne({ email });
+    if (existingUser) {
+      const error = new Error('Email already registered');
+      error.status = 400;
+      throw error;
+    }
+
+    // Create new user
+    const user = new User({
+      email,
+      password,
+      name,
+      role: role || 'user',
+      phones: phoneNumber ? [phoneNumber] : [],
+      addresses: address ? [address] : [],
+      isVerified: true, // Since admin is creating the user
+      active: true
+    });
+
+    await user.save();
+
+    // Create specific role-based profile if needed
+    if (role) {
+      switch (role) {
+        case 'driver':
+          await Driver.create({
+            userId: user._id,
+            name,
+            phoneNumber: phoneNumber || []
+          });
+          break;
+        case 'parent':
+          await Parent.create({
+            userId: user._id,
+            name,
+            phone: phoneNumber || [],
+            address: address || null
+          });
+          break;
+        case 'school':
+          await School.create({
+            name,
+            adminUsers: [user._id],
+            phoneNumber: phoneNumber || [],
+            address: address || null
+          });
+          break;
+      }
+    }
+
+    // Generate welcome notification
+    await createNotification(
+      user._id,
+      'Welcome to the system! Your account has been created by an administrator.'
+    );
+
+    // Send response without password
+    const userResponse = user.toObject();
+    delete userResponse.password;
+
+    res.status(201).json({
+      message: 'User created successfully',
+      user: userResponse
+    });
+  }),
   getAll: asyncHandler(async (req, res) => {
     const { page = 1, limit = 10, role, search } = req.query;
 

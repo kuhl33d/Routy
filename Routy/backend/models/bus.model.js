@@ -1,4 +1,5 @@
-const mongoose = require("mongoose");
+// const mongoose = require("mongoose");
+import mongoose from "mongoose";
 import validateObjectIdExists from "../helpers/helpers.js";
 
 const busSchema = new mongoose.Schema(
