@@ -1,0 +1,44 @@
+[
+  {
+    "_id": "67bb7d8b5ff333ff0c228bf8",
+    "plan": "paid for 0 busses for 1 month",
+    "startDate": "2025-02-23T19:56:59.667Z",
+    "endDate": "2025-03-25T19:56:59.667Z",
+    "active": true,
+    "amount": 0,
+    "description": "",
+    "userId": "67ba0db9444a600ff4c1aca0",
+    "paymentDate": "2025-02-23T19:56:59.670Z",
+    "createdAt": "2025-02-23T19:56:59.803Z",
+    "updatedAt": "2025-02-23T19:56:59.803Z",
+    "__v": 0
+  },
+  {
+    "_id": "67bb7d993bb20b0d287c226e",
+    "plan": "paid for 0 busses for 1 month",
+    "startDate": "2025-02-23T19:57:13.788Z",
+    "endDate": "2025-03-25T19:57:13.788Z",
+    "active": true,
+    "amount": 0,
+    "description": "",
+    "userId": "67ba0db9444a600ff4c1aca0",
+    "paymentDate": "2025-02-23T19:57:13.790Z",
+    "createdAt": "2025-02-23T19:57:13.922Z",
+    "updatedAt": "2025-02-23T19:57:13.922Z",
+    "__v": 0
+  },
+  {
+    "_id": "67bf2d4baafc2555eed4d985",
+    "plan": "paid for 0 busses for 1 month",
+    "startDate": "2025-02-26T15:03:39.801Z",
+    "endDate": "2025-03-28T15:03:39.801Z",
+    "active": true,
+    "amount": 0,
+    "description": "",
+    "userId": "67bee7f95668bf2832d8fe93",
+    "paymentDate": "2025-02-26T15:03:39.804Z",
+    "createdAt": "2025-02-26T15:03:39.937Z",
+    "updatedAt": "2025-02-26T15:03:39.937Z",
+    "__v": 0
+  }
+]

@@ -1,0 +1,19 @@
+[
+  {
+    "_id": "67bf05c4a352620c0338fa0e",
+    "busNumber": "Bus1",
+    "driverId": "67beeceb5668bf2832d8ff92",
+    "routeId": "67bb4700cf27aaacdecfc6fb",
+    "capacity": 30,
+    "currentPassengers": 0,
+    "currentLocation": {
+      "latitude": 20,
+      "longitude": 8
+    },
+    "status": "Idle",
+    "studentsOnBoard": [],
+    "createdAt": "2025-02-26T12:15:00.652Z",
+    "updatedAt": "2025-02-26T12:17:01.899Z",
+    "__v": 0
+  }
+]
