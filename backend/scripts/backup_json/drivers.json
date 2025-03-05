@@ -1,0 +1,60 @@
+[
+  {
+    "_id": "67bb5cfe346993e1ad4140c5",
+    "licenseNumber": "4534",
+    "vehicleType": "Lancer",
+    "userId": "67bb5cfd346993e1ad4140c3",
+    "isActive": false,
+    "createdAt": "2025-02-23T17:38:06.243Z",
+    "updatedAt": "2025-02-23T17:38:06.243Z",
+    "__v": 0
+  },
+  {
+    "_id": "67bee7935668bf2832d8fe7d",
+    "licenseNumber": "4257",
+    "vehicleType": "Toyota",
+    "userId": "67bee7935668bf2832d8fe7b",
+    "isActive": false,
+    "createdAt": "2025-02-26T10:06:11.433Z",
+    "updatedAt": "2025-02-26T10:06:11.433Z",
+    "__v": 0
+  },
+  {
+    "_id": "67beeceb5668bf2832d8ff92",
+    "licenseNumber": "123",
+    "vehicleType": "Ford",
+    "userId": "67beecea5668bf2832d8ff90",
+    "isActive": false,
+    "createdAt": "2025-02-26T10:28:59.294Z",
+    "updatedAt": "2025-02-26T10:28:59.294Z",
+    "__v": 0
+  },
+  {
+    "_id": "67befbd6df03736b3aecbc82",
+    "licenseNumber": "4237",
+    "vehicleType": "Toyota",
+    "userId": "67befbd6df03736b3aecbc80",
+    "isActive": false,
+    "createdAt": "2025-02-26T11:32:38.568Z",
+    "updatedAt": "2025-02-26T11:32:38.568Z",
+    "__v": 0
+  },
+  {
+    "_id": "67befc8ddf03736b3aecbc9d",
+    "licenseNumber": "4277",
+    "vehicleType": "Toyota",
+    "userId": "67befc8ddf03736b3aecbc9b",
+    "isActive": false,
+    "createdAt": "2025-02-26T11:35:41.346Z",
+    "updatedAt": "2025-02-26T11:35:41.346Z",
+    "__v": 0
+  },
+  {
+    "_id": "67c2fbd5fc7949cd3437d6fe",
+    "userId": "67c2fbd5fc7949cd3437d6fc",
+    "isActive": false,
+    "createdAt": "2025-03-01T12:21:41.778Z",
+    "updatedAt": "2025-03-01T12:21:41.778Z",
+    "__v": 0
+  }
+]
