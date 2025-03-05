@@ -43,218 +43,185 @@ function LoadingSpinner() {
 }
 
 // Custom Hook for Dashboard Data
-// function useDashboardData() {
-//   const { getTotalReport, getSystemState } = useAdminStore();
-//   const [data, setData] = useState<{
-//     stats: TotalReport['stats'] | null;
-//     overview: SystemState | null;
-//   }>({
-//     stats: null,
-//     overview: null,
-//   });
-//   const [isLoading, setIsLoading] = useState(true);
-//   const [error, setError] = useState<string | null>(null);
-//   const isMounted = useRef(true);
+function useDashboardData() {
+  const { getTotalReport, getSystemState } = useAdminStore();
+  const [data, setData] = useState<{
+    stats: TotalReport['stats'] | null;
+    overview: SystemState | null;
+  }>({
+    stats: null,
+    overview: null,
+  });
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const isMounted = useRef(true);
 
-//   const fetchDashboardData = useCallback(async () => {
-//     if (!isMounted.current) return;
+  const fetchDashboardData = useCallback(async () => {
+    if (!isMounted.current) return;
     
-//     setIsLoading(true);
-//     setError(null);
+    setIsLoading(true);
+    setError(null);
 
-//     try {
-//       const [statsResponse, overviewResponse] = await Promise.all([
-//         getTotalReport(),
-//         getSystemState()
-//       ]);
+    try {
+      const [statsResponse, overviewResponse] = await Promise.all([
+        getTotalReport(),
+        getSystemState()
+      ]);
 
-//       if (!isMounted.current) return;
+      if (!isMounted.current) return;
 
-//       setData({
-//         stats: statsResponse.stats,
-//         overview: overviewResponse
-//       });
-//     } catch (err: any) {
-//       if (!isMounted.current) return;
-//       console.error('Dashboard fetch error:', err);
-//       setError('Failed to load dashboard data');
-//     } finally {
-//       if (isMounted.current) {
-//         setIsLoading(false);
-//       }
-//     }
-//   }, [getTotalReport, getSystemState]);
+      setData({
+        stats: statsResponse.stats,
+        overview: overviewResponse
+      });
+    } catch (err: any) {
+      if (!isMounted.current) return;
+      console.error('Dashboard fetch error:', err);
+      setError('Failed to load dashboard data');
+    } finally {
+      if (isMounted.current) {
+        setIsLoading(false);
+      }
+    }
+  }, [getTotalReport, getSystemState]);
 
-//   useEffect(() => {
-//     fetchDashboardData();
-//     return () => {
-//       isMounted.current = false;
-//     };
-//   }, [fetchDashboardData]);
+  useEffect(() => {
+    fetchDashboardData();
+    return () => {
+      isMounted.current = false;
+    };
+  }, [fetchDashboardData]);
 
-//   return { data, isLoading, error, refetch: fetchDashboardData };
-// }
+  return { data, isLoading, error, refetch: fetchDashboardData };
+}
 
 // Tab Components
 
 function InsightsTab() {
-    const [stats, setStats] = useState<TotalReport['stats'] | null>(null);
-    const [overview, setOverview] = useState<SystemState | null>(null);
-    const [isLoading, setIsLoading] = useState(true);
-    const [error, setError] = useState<string | null>(null);
-    const { getTotalReport, getSystemState } = useAdminStore();
-  
-    useEffect(() => {
-      async function fetchData() {
-        try {
-          setIsLoading(true);
-          console.log("Fetching dashboard data...");
-  
-          // Fetch stats
-          const statsResponse = await getTotalReport();
-          console.log("Stats response:", statsResponse);
-          if (statsResponse?.success) {
-            setStats(statsResponse.stats);
-          }
-  
-          // Fetch overview
-          const overviewResponse = await getSystemState();
-          console.log("Overview response:", overviewResponse);
-          setOverview(overviewResponse);
-  
-          setError(null);
-        } catch (err: any) {
-          console.error("Error fetching dashboard data:", err);
-          setError(err.message || "Failed to load dashboard data");
-        } finally {
-          setIsLoading(false);
-        }
-      }
-  
-      fetchData();
-    }, [getTotalReport, getSystemState]);
-  
-    if (isLoading) {
-      return (
-        <div className="flex justify-center items-center h-64">
-          <LoadingSpinner />
-        </div>
-      );
-    }
-  
-    if (error) {
-      return (
-        <div className="flex flex-col items-center justify-center p-8 space-y-4">
-          <p className="text-red-500">{error}</p>
-          <Button 
-            onClick={() => window.location.reload()}
-            className="bg-[#F7B32B] text-black hover:bg-[#F7B32B]/90"
-          >
-            Retry
-          </Button>
-        </div>
-      );
-    }
-  
+  const { data, isLoading, error, refetch } = useDashboardData();
+  const { stats, overview } = data;
+
+  if (isLoading) {
     return (
-      <div className="space-y-8">
-        {/* Stats Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-sm font-medium">
-                Total Parents
-              </CardTitle>
-              <CardDescription className="text-2xl font-bold">
-                {stats?.totalParents || 0}
-              </CardDescription>
-            </CardHeader>
-          </Card>
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-sm font-medium">
-                Total Drivers
-              </CardTitle>
-              <CardDescription className="text-2xl font-bold">
-                {stats?.totalDrivers || 0}
-              </CardDescription>
-            </CardHeader>
-          </Card>
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-sm font-medium">
-                Total Schools
-              </CardTitle>
-              <CardDescription className="text-2xl font-bold">
-                {stats?.totalSchools || 0}
-              </CardDescription>
-            </CardHeader>
-          </Card>
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-sm font-medium">
-                Total Buses
-              </CardTitle>
-              <CardDescription className="text-2xl font-bold">
-                {stats?.totalBuses || 0}
-              </CardDescription>
-            </CardHeader>
-          </Card>
-        </div>
-  
-        {/* Overview Cards */}
-        {overview && (
-          <>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <Card>
-                <CardHeader>
-                  <CardTitle>Active Routes</CardTitle>
-                  <CardDescription className="text-2xl font-bold">
-                    {overview.activeRoutes?.length || 0}
-                  </CardDescription>
-                </CardHeader>
-              </Card>
-              <Card>
-                <CardHeader>
-                  <CardTitle>Active Buses</CardTitle>
-                  <CardDescription className="text-2xl font-bold">
-                    {overview.activeBuses?.length || 0}
-                  </CardDescription>
-                </CardHeader>
-              </Card>
-            </div>
-  
-            {/* Recent Alerts */}
-            <Card>
-              <CardHeader>
-                <CardTitle>Recent Alerts</CardTitle>
-              </CardHeader>
-              <CardContent>
-                {overview.recentAlerts?.length > 0 ? (
-                  <div className="space-y-2">
-                    {overview.recentAlerts.map((alert) => (
-                      <div
-                        key={alert._id}
-                        className="p-3 bg-background rounded-lg border"
-                      >
-                        <p>{alert.message}</p>
-                        <p className="text-sm text-muted-foreground mt-1">
-                          {new Date(alert.createdAt).toLocaleDateString()}
-                        </p>
-                      </div>
-                    ))}
-                  </div>
-                ) : (
-                  <p className="text-center text-muted-foreground">
-                    No recent alerts
-                  </p>
-                )}
-              </CardContent>
-            </Card>
-          </>
-        )}
+      <div className="flex justify-center items-center h-64">
+        <LoadingSpinner />
       </div>
     );
+  }
+
+  if (error) {
+    return (
+      <div className="flex flex-col items-center justify-center p-8 space-y-4">
+        <p className="text-red-500">{error}</p>
+        <Button 
+          onClick={refetch}
+          className="bg-[#F7B32B] text-black hover:bg-[#F7B32B]/90"
+        >
+          Retry
+        </Button>
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-8">
+      {/* Stats Grid */}
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-sm font-medium">
+              Total Parents
+            </CardTitle>
+            <CardDescription className="text-2xl font-bold">
+              {stats?.totalParents || 0}
+            </CardDescription>
+          </CardHeader>
+        </Card>
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-sm font-medium">
+              Total Drivers
+            </CardTitle>
+            <CardDescription className="text-2xl font-bold">
+              {stats?.totalDrivers || 0}
+            </CardDescription>
+          </CardHeader>
+        </Card>
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-sm font-medium">
+              Total Schools
+            </CardTitle>
+            <CardDescription className="text-2xl font-bold">
+              {stats?.totalSchools || 0}
+            </CardDescription>
+          </CardHeader>
+        </Card>
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-sm font-medium">
+              Total Buses
+            </CardTitle>
+            <CardDescription className="text-2xl font-bold">
+              {stats?.totalBuses || 0}
+            </CardDescription>
+          </CardHeader>
+        </Card>
+      </div>
+
+      {/* Overview Cards */}
+      {overview && (
+        <>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <Card>
+              <CardHeader>
+                <CardTitle>Active Routes</CardTitle>
+                <CardDescription className="text-2xl font-bold">
+                  {overview.activeRoutes?.length || 0}
+                </CardDescription>
+              </CardHeader>
+            </Card>
+            <Card>
+              <CardHeader>
+                <CardTitle>Active Buses</CardTitle>
+                <CardDescription className="text-2xl font-bold">
+                  {overview.activeBuses?.length || 0}
+                </CardDescription>
+              </CardHeader>
+            </Card>
+          </div>
+
+          {/* Recent Alerts */}
+          <Card>
+            <CardHeader>
+              <CardTitle>Recent Alerts</CardTitle>
+            </CardHeader>
+            <CardContent>
+              {overview.recentAlerts?.length > 0 ? (
+                <div className="space-y-2">
+                  {overview.recentAlerts.map((alert) => (
+                    <div
+                      key={alert._id}
+                      className="p-3 bg-background rounded-lg border"
+                    >
+                      <p>{alert.message}</p>
+                      <p className="text-sm text-muted-foreground mt-1">
+                        {new Date(alert.createdAt).toLocaleDateString()}
+                      </p>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <p className="text-center text-muted-foreground">
+                  No recent alerts
+                </p>
+              )}
+            </CardContent>
+          </Card>
+        </>
+      )}
+    </div>
+  );
 }
 
 function SchoolsTab() {

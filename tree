@@ -1,0 +1,231 @@
+.
+├── backend
+│   ├── config
+│   │   ├── config.js
+│   │   └── database.js
+│   ├── controllers
+│   │   ├── admin.controller.js
+│   │   ├── auth.controller.js
+│   │   ├── bus.controller.js
+│   │   ├── driver.controller.js
+│   │   ├── parent.controller.js
+│   │   ├── route.controller.js
+│   │   ├── school.controller.js
+│   │   ├── student.controller.js
+│   │   ├── trip.controller.js
+│   │   └── user.controller.js
+│   ├── helpers
+│   │   ├── helpers.js
+│   │   └── pagination.js
+│   ├── index.js
+│   ├── lib
+│   │   └── db.js
+│   ├── middleware
+│   │   ├── auth.middleware.js
+│   │   ├── errorHandler.js
+│   │   ├── validate.js
+│   │   └── verifyToken.js
+│   ├── models
+│   │   ├── address.model.js
+│   │   ├── attendence.model.js
+│   │   ├── bus.model.js
+│   │   ├── driver.model.js
+│   │   ├── notification.model.js
+│   │   ├── parent.model.js
+│   │   ├── route.model.js
+│   │   ├── school.model.js
+│   │   ├── student.model.js
+│   │   ├── subscription.model.js
+│   │   ├── trip.model.js
+│   │   └── user.model.js
+│   ├── package-lock.json
+│   ├── package.json
+│   ├── routes
+│   │   ├── admin.route.js
+│   │   ├── auth.route.js
+│   │   ├── bus.route.js
+│   │   ├── driver.route.js
+│   │   ├── parent.route.js
+│   │   ├── route.route.js
+│   │   ├── school.route.js
+│   │   ├── student.route.js
+│   │   ├── system.route.js
+│   │   ├── trip.route.js
+│   │   └── user.route.js
+│   ├── scripts
+│   │   ├── backup_json
+│   │   │   ├── addresses.json
+│   │   │   ├── buses.json
+│   │   │   ├── drivers.json
+│   │   │   ├── notifications.json
+│   │   │   ├── parents.json
+│   │   │   ├── routes.json
+│   │   │   ├── schools.json
+│   │   │   ├── students.json
+│   │   │   ├── subscriptions.json
+│   │   │   └── users.json
+│   │   ├── cloneDB.js
+│   │   ├── dropCollections..js
+│   │   └── importDB.js
+│   ├── utils
+│   │   ├── asyncHandler.js
+│   │   ├── auth.js
+│   │   ├── geocoding.js
+│   │   ├── notifications.js
+│   │   ├── validation.js
+│   │   ├── websocket.js
+│   │   └── wrappers.js
+│   └── validators
+│       └── auth.validator.js
+├── frontend
+│   ├── components.json
+│   ├── eslint.config.js
+│   ├── index.html
+│   ├── package.json
+│   ├── pnpm-lock.yaml
+│   ├── postcss.config.js
+│   ├── public
+│   │   ├── placeholder-logo.png
+│   │   ├── placeholder-logo.svg
+│   │   ├── placeholder-user.jpg
+│   │   ├── placeholder.jpg
+│   │   └── placeholder.svg
+│   ├── src
+│   │   ├── App.tsx
+│   │   ├── ThemeContext.tsx
+│   │   ├── assets
+│   │   │   ├── images
+│   │   │   │   ├── 1.png
+│   │   │   │   ├── 2.png
+│   │   │   │   ├── 3.png
+│   │   │   │   ├── How-KinderRide works-section
+│   │   │   │   │   ├── 1.png
+│   │   │   │   │   ├── 2.png
+│   │   │   │   │   └── 3.png
+│   │   │   │   ├── hero-Img2.png
+│   │   │   │   ├── logo.png
+│   │   │   │   ├── react.svg
+│   │   │   │   └── schoolLogo.jpg
+│   │   │   └── styles
+│   │   │       └── globals.css
+│   │   ├── components
+│   │   │   ├── AddModal.tsx
+│   │   │   ├── CustomDataGrid.tsx
+│   │   │   ├── DataGridTemplatePage.tsx
+│   │   │   ├── SchoolHeader.tsx
+│   │   │   ├── SmartSidebar.tsx
+│   │   │   ├── map.tsx
+│   │   │   ├── nav-bar.tsx
+│   │   │   ├── route-map.tsx
+│   │   │   └── ui
+│   │   │       ├── ActivityItem.tsx
+│   │   │       ├── FeatureCard.tsx
+│   │   │       ├── NotificationCard.tsx
+│   │   │       ├── PricingCard.tsx
+│   │   │       ├── StudentProfile.tsx
+│   │   │       ├── SummaryCard.tsx
+│   │   │       ├── accordion.tsx
+│   │   │       ├── alert-dialog.tsx
+│   │   │       ├── alert.tsx
+│   │   │       ├── aspect-ratio.tsx
+│   │   │       ├── avatar.tsx
+│   │   │       ├── badge.tsx
+│   │   │       ├── breadcrumb.tsx
+│   │   │       ├── button.tsx
+│   │   │       ├── calendar.tsx
+│   │   │       ├── card.tsx
+│   │   │       ├── carousel.tsx
+│   │   │       ├── chart.tsx
+│   │   │       ├── checkbox.tsx
+│   │   │       ├── collapsible.tsx
+│   │   │       ├── command.tsx
+│   │   │       ├── context-menu.tsx
+│   │   │       ├── dialog.tsx
+│   │   │       ├── drawer.tsx
+│   │   │       ├── dropdown-menu.tsx
+│   │   │       ├── form.tsx
+│   │   │       ├── hover-card.tsx
+│   │   │       ├── input-otp.tsx
+│   │   │       ├── input.tsx
+│   │   │       ├── label.tsx
+│   │   │       ├── menubar.tsx
+│   │   │       ├── navigation-menu.tsx
+│   │   │       ├── pagination.tsx
+│   │   │       ├── popover.tsx
+│   │   │       ├── progress.tsx
+│   │   │       ├── radio-group.tsx
+│   │   │       ├── resizable.tsx
+│   │   │       ├── scroll-area.tsx
+│   │   │       ├── select.tsx
+│   │   │       ├── separator.tsx
+│   │   │       ├── sheet.tsx
+│   │   │       ├── sidebar.tsx
+│   │   │       ├── skeleton.tsx
+│   │   │       ├── slider.tsx
+│   │   │       ├── sonner.tsx
+│   │   │       ├── switch.tsx
+│   │   │       ├── table.tsx
+│   │   │       ├── tabs.tsx
+│   │   │       ├── textarea.tsx
+│   │   │       ├── toast.tsx
+│   │   │       ├── toaster.tsx
+│   │   │       ├── toggle-group.tsx
+│   │   │       ├── toggle.tsx
+│   │   │       ├── tooltip.tsx
+│   │   │       ├── use-mobile.tsx
+│   │   │       └── use-toast.ts
+│   │   ├── container
+│   │   │   └── Routes.tsx
+│   │   ├── lib
+│   │   │   ├── axios.ts
+│   │   │   └── utils.ts
+│   │   ├── main.tsx
+│   │   ├── pages
+│   │   │   ├── Admin.old.tsx
+│   │   │   ├── Admin.tsx
+│   │   │   ├── ConnectBack.jsx
+│   │   │   ├── DriverDashboard.tsx
+│   │   │   ├── Home.tsx
+│   │   │   ├── Home2.tsx
+│   │   │   ├── Login.tsx
+│   │   │   ├── School
+│   │   │   │   ├── Dashboard.tsx
+│   │   │   │   ├── GridPagesCollection.tsx
+│   │   │   │   ├── RoutePerformanceChart.tsx
+│   │   │   │   ├── School.tsx
+│   │   │   │   └── data.tsx
+│   │   │   ├── Signup.tsx
+│   │   │   ├── Views
+│   │   │   │   ├── DriverView.tsx
+│   │   │   │   └── Logins.tsx
+│   │   │   └── parent
+│   │   │       ├── Parent.tsx
+│   │   │       ├── RideCard.tsx
+│   │   │       ├── Tracking.tsx
+│   │   │       └── data.tsx
+│   │   ├── stores
+│   │   │   ├── admin.store.ts
+│   │   │   ├── bus.store.ts
+│   │   │   ├── driver.store.ts
+│   │   │   ├── parent.store.ts
+│   │   │   ├── route.store.ts
+│   │   │   ├── school.store.ts
+│   │   │   ├── trip.store.ts
+│   │   │   └── user.store.ts
+│   │   ├── types
+│   │   │   ├── Types.ts
+│   │   │   ├── admin.types.ts
+│   │   │   ├── driver.types.ts
+│   │   │   ├── parent.types.ts
+│   │   │   └── trip.types.ts
+│   │   └── vite-env.d.ts
+│   ├── tailwind.config.ts
+│   ├── tree.txt
+│   ├── tsconfig.app.json
+│   ├── tsconfig.json
+│   ├── tsconfig.node.json
+│   ├── tsconfig.tsbuildinfo
+│   └── vite.config.ts
+└── tree
+
+29 directories, 199 files
