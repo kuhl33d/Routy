@@ -1,294 +1,333 @@
 import { create } from "zustand";
 import axiosInstance from "@/lib/axios";
 import { toast } from "react-hot-toast";
-import { 
-  User, 
-  SystemState, 
-  TotalReport, 
-  PaginatedResponse, 
-  School, 
-  PlanWithSubscribers,
-  SubscriptionPlan 
-} from "@/types/admin.types";
+import * as Types from "@/types/admin.types";
 
-// Separate interfaces for different state slices
+// Auth helpers
+const getAuthToken = () => localStorage.getItem('token');
+const setAuthToken = (token: string) => localStorage.setItem('token', token);
+const removeAuthToken = () => localStorage.removeItem('token');
+
+// State Interfaces
+interface LoadingState {
+    dashboard: boolean;
+    schools: boolean;
+    users: boolean;
+    plans: boolean;
+}
+
 interface BaseState {
-  loading: boolean;
-  error: string | null;
-  isAuthenticated: boolean;
+    loading: boolean;
+    error: string | null;
+    isAuthenticated: boolean;
+    loadingState: LoadingState;
 }
 
 interface DashboardState {
-  totalReport: TotalReport | null;
-  systemState: SystemState | null;
+    totalReport: Types.TotalReport | null;
+    systemState: Types.SystemState | null;
 }
 
 interface UserState {
-  users: User[];
+    users: Types.User[];
 }
 
 interface SchoolState {
-  schools: School[];
+    schools: Types.School[];
+    selectedSchool: Types.School | null;
 }
 
 interface PlanState {
-  plans: PlanWithSubscribers[];
-  plansLoading: boolean;
-  plansError: string | null;
+    plans: Types.PlanWithSubscribers[];
+    plansLoading: boolean;
+    plansError: string | null;
 }
 
-// Parameter interfaces for actions
+// Parameter Interfaces
 interface GetUsersParams {
-  role?: string;
-  page?: number;
-  limit?: number;
+    role?: string;
+    page?: number;
+    limit?: number;
 }
 
 interface UpdateUserParams {
-  userId: string;
-  updateData: Partial<User>;
+    userId: string;
+    updateData: Partial<Types.User>;
 }
 
 interface UpdateSchoolParams {
-  schoolId: string;
-  updateData: Partial<School>;
+    schoolId: string;
+    updateData: Partial<Types.School>;
 }
 
-interface GetSchoolsParams {
-  page?: number;
-  limit?: number;
+// Combined Store Interface
+interface AdminStore extends BaseState, DashboardState, UserState, SchoolState, PlanState {
+    // Utils
+    withLoading: <T>(loadingKey: keyof LoadingState, fn: () => Promise<T>) => Promise<T>;
+    checkAuth: () => boolean;
+    
+    // Dashboard Actions
+    getDashboardData: () => Promise<void>;
+    getTotalReport: () => Promise<Types.TotalReport>;
+    getSystemState: () => Promise<Types.SystemState>;
+    
+    // User Actions
+    getAllUsers: (params: GetUsersParams) => Promise<Types.PaginatedResponse<Types.User>>;
+    updateUser: (params: UpdateUserParams) => Promise<void>;
+    safeDeleteUser: (params: { userId: string }) => Promise<void>;
+    finalDeleteUser: (params: { userId: string }) => Promise<void>;
+    
+    // School Actions
+    getAllSchools: () => Promise<Types.School[]>;
+    getSchoolDetails: (schoolId: string) => Promise<Types.School>;
+    updateSchool: (params: UpdateSchoolParams) => Promise<void>;
+    
+    // Plan Actions
+    getAllPlans: () => Promise<Types.PlanWithSubscribers[]>;
+    createPlan: (plan: Partial<Types.SubscriptionPlan>) => Promise<Types.SubscriptionPlan>;
+    updatePlan: (planId: string, updates: Partial<Types.SubscriptionPlan>) => Promise<Types.SubscriptionPlan>;
+    importPlans: (file: File) => Promise<void>;
 }
 
-// Combined AdminState interface
-interface AdminState extends BaseState, DashboardState, UserState, SchoolState, PlanState {
-  // Utils
-  withLoading: <T>(fn: () => Promise<T>) => Promise<T>;
-
-  // Dashboard actions
-  getTotalReport: () => Promise<TotalReport>;
-  getSystemState: () => Promise<SystemState>;
-
-  // User actions
-  getAllUsers: (params: GetUsersParams) => Promise<PaginatedResponse<User>>;
-  updateUser: (params: UpdateUserParams) => Promise<void>;
-  safeDeleteUser: (params: { userId: string }) => Promise<void>;
-  finalDeleteUser: (params: { userId: string }) => Promise<void>;
-
-  // School actions
-  getAllSchools: (params: GetSchoolsParams) => Promise<PaginatedResponse<School>>;
-  updateSchool: (params: UpdateSchoolParams) => Promise<void>;
-
-  // Plan actions
-  getAllPlans: () => Promise<PlanWithSubscribers[]>;
-  createPlan: (plan: Partial<SubscriptionPlan>) => Promise<SubscriptionPlan>;
-  updatePlan: (planId: string, updates: Partial<SubscriptionPlan>) => Promise<SubscriptionPlan>;
-  importPlans: (file: File) => Promise<void>;
-}
-
-// Initial state
-const initialState: Omit<AdminState, 'withLoading' | 'getTotalReport' | 'getSystemState' | 'getAllUsers' | 'updateUser' | 'safeDeleteUser' | 'finalDeleteUser' | 'getAllSchools' | 'updateSchool' | 'getAllPlans' | 'createPlan' | 'updatePlan' | 'importPlans'> = {
-  // Base state
-  loading: false,
-  error: null,
-  isAuthenticated: true,
-
-  // Dashboard state
-  totalReport: null,
-  systemState: null,
-
-  // User state
-  users: [],
-
-  // School state
-  schools: [],
-
-  // Plan state
-  plans: [],
-  plansLoading: false,
-  plansError: null,
+// Initial State
+const initialState: Omit<AdminStore, 'withLoading' | 'checkAuth' | 'getDashboardData' | 'getTotalReport' | 'getSystemState' | 'getAllUsers' | 'updateUser' | 'safeDeleteUser' | 'finalDeleteUser' | 'getAllSchools' | 'getSchoolDetails' | 'updateSchool' | 'getAllPlans' | 'createPlan' | 'updatePlan' | 'importPlans'> = {
+    loading: false,
+    error: null,
+    isAuthenticated: !!getAuthToken(),
+    loadingState: {
+        dashboard: false,
+        schools: false,
+        users: false,
+        plans: false,
+    },
+    totalReport: null,
+    systemState: null,
+    users: [],
+    schools: [] as Types.School[],
+    selectedSchool: null as Types.School | null,
+    plans: [],
+    plansLoading: false,
+    plansError: null,
 };
 
-export const useAdminStore = create<AdminState>((set, get) => ({
-  ...initialState,
+// Axios interceptors
+axiosInstance.interceptors.request.use(
+    (config) => {
+        const token = getAuthToken();
+        if (token) {
+            config.headers.Authorization = `Bearer ${token}`;
+        }
+        return config;
+    },
+    (error) => Promise.reject(error)
+);
 
-  // Utils
-  withLoading: async <T>(fn: () => Promise<T>): Promise<T> => {
-    if (!get().isAuthenticated) {
-      throw new Error('Unauthorized');
+axiosInstance.interceptors.response.use(
+    (response) => response,
+    (error) => {
+        if (error.response?.status === 401) {
+            removeAuthToken();
+            window.location.href = '/login';
+        }
+        return Promise.reject(error);
     }
-    if (get().loading) {
-      return Promise.reject(new Error('Operation in progress'));
-    }
+);
 
-    set({ loading: true, error: null });
-    try {
-      const result = await fn();
-      return result;
-    } catch (error: any) {
-      if (error.response?.status === 401) {
-        set({ isAuthenticated: false });
-        throw new Error('Unauthorized');
-      }
-      const errorMessage = error.response?.data?.message || "An error occurred";
-      set({ error: errorMessage });
-      throw error;
-    } finally {
-      set({ loading: false });
-    }
-  },
+// Store implementation
+export const useAdminStore = create<AdminStore>((set, get) => ({
+    ...initialState,
 
-  // Dashboard actions
-  getTotalReport: async () => {
-    return get().withLoading(async () => {
-      const response = await axiosInstance.get<TotalReport>('/admin/dashboard');
-      set({ totalReport: response.data });
-      return response.data;
-    });
-  },
+    checkAuth: () => {
+        const token = getAuthToken();
+        const isAuth = !!token;
+        set({ isAuthenticated: isAuth });
+        return isAuth;
+    },
 
-  getSystemState: async () => {
-    return get().withLoading(async () => {
-      const response = await axiosInstance.get<SystemState>('/admin/overview');
-      set({ systemState: response.data });
-      return response.data;
-    });
-  },
+    withLoading: async <T>(loadingKey: keyof LoadingState, fn: () => Promise<T>): Promise<T> => {
+        if (!get().checkAuth()) {
+            throw new Error('Unauthorized');
+        }
 
-  // User actions
-  getAllUsers: async ({ role, page = 1, limit = 10 }) => {
-    return get().withLoading(async () => {
-      const response = await axiosInstance.get<PaginatedResponse<User>>("/auth/users", {
-        params: { page, limit, role },
-      });
-      set({ users: response.data.data });
-      return response.data;
-    });
-  },
+        set(state => ({
+            loadingState: { ...state.loadingState, [loadingKey]: true },
+            error: null
+        }));
 
-  updateUser: async ({ userId, updateData }) => {
-    return get().withLoading(async () => {
-      const response = await axiosInstance.put<User>(`/auth/users/${userId}`, updateData);
-      set((state) => ({
-        users: state.users.map((user) => user._id === userId ? response.data : user),
-      }));
-      toast.success("User updated successfully");
-    });
-  },
+        try {
+            const result = await fn();
+            return result;
+        } catch (error: any) {
+            const errorMessage = error.response?.data?.message || error.message || "An error occurred";
+            set({ error: errorMessage });
+            toast.error(errorMessage);
+            throw error;
+        } finally {
+            set(state => ({
+                loadingState: { ...state.loadingState, [loadingKey]: false }
+            }));
+        }
+    },
 
-  safeDeleteUser: async ({ userId }) => {
-    return get().withLoading(async () => {
-      await axiosInstance.delete(`/auth/users/${userId}`);
-      set((state) => ({
-        users: state.users.filter((user) => user._id !== userId),
-      }));
-      toast.success("User marked as deleted");
-    });
-  },
+    // Dashboard Actions
+    getDashboardData: async () => {
+        return get().withLoading('dashboard', async () => {
+            const [totalReport, systemState, schools] = await Promise.all([
+                axiosInstance.get<Types.TotalReport>('/admin/dashboard'),
+                axiosInstance.get<Types.SystemState>('/admin/overview'),
+                axiosInstance.get<Types.School[]>('/schools')
+            ]);
 
-  finalDeleteUser: async ({ userId }) => {
-    return get().withLoading(async () => {
-      await axiosInstance.delete(`/auth/usersFinalDelete/${userId}`);
-      set((state) => ({
-        users: state.users.filter((user) => user._id !== userId),
-      }));
-      toast.success("User permanently deleted");
-    });
-  },
+            set({
+                totalReport: totalReport.data,
+                systemState: systemState.data,
+                schools: schools.data,
+                error: null
+            });
+        });
+    },
 
-  // School actions
-  getAllSchools: async ({ page = 1, limit = 10 }) => {
-    return get().withLoading(async () => {
-      const response = await axiosInstance.get<PaginatedResponse<School>>('/schools', {
-        params: { page, limit }
-      });
-      set({ schools: response.data.data });
-      return response.data;
-    });
-  },
+    getTotalReport: async () => {
+        return get().withLoading('dashboard', async () => {
+            const response = await axiosInstance.get<Types.TotalReport>('/admin/dashboard');
+            set({ totalReport: response.data });
+            return response.data;
+        });
+    },
 
-  updateSchool: async ({ schoolId, updateData }) => {
-    return get().withLoading(async () => {
-      const response = await axiosInstance.put<School>(`/schools/${schoolId}`, updateData);
-      set((state) => ({
-        schools: state.schools.map((school) => 
-          school._id === schoolId ? response.data : school
-        ),
-      }));
-      toast.success("School updated successfully");
-    });
-  },
+    getSystemState: async () => {
+        return get().withLoading('dashboard', async () => {
+            const response = await axiosInstance.get<Types.SystemState>('/admin/overview');
+            set({ systemState: response.data });
+            return response.data;
+        });
+    },
 
-  // Plan actions
-  getAllPlans: async () => {
-    set({ plansLoading: true });
-    try {
-      const response = await axiosInstance.get<PlanWithSubscribers[]>('/admin/subscription');
-      set({ plans: response.data, plansError: null });
-      return response.data;
-    } catch (error: any) {
-      const errorMessage = error.response?.data?.message || 'Failed to fetch plans';
-      set({ plansError: errorMessage });
-      throw new Error(errorMessage);
-    } finally {
-      set({ plansLoading: false });
-    }
-  },
+    // User Actions
+    getAllUsers: async ({ role, page = 1, limit = 10 }) => {
+        return get().withLoading('users', async () => {
+            const response = await axiosInstance.get<Types.PaginatedResponse<Types.User>>('/auth/users', {
+                params: { role, page, limit }
+            });
+            set({ users: response.data.data });
+            return response.data;
+        });
+    },
 
-  createPlan: async (plan) => {
-    set({ plansLoading: true });
-    try {
-      const response = await axiosInstance.post<SubscriptionPlan>('/admin/subscription', plan);
-      set((state) => ({ 
-        plans: [...state.plans, { ...response.data, subscriberCount: 0, subscribers: [] }],
-        plansError: null 
-      }));
-      return response.data;
-    } catch (error: any) {
-      const errorMessage = error.response?.data?.message || 'Failed to create plan';
-      set({ plansError: errorMessage });
-      throw new Error(errorMessage);
-    } finally {
-      set({ plansLoading: false });
-    }
-  },
+    updateUser: async ({ userId, updateData }) => {
+        return get().withLoading('users', async () => {
+            const response = await axiosInstance.put<Types.User>(`/auth/users/${userId}`, updateData);
+            set(state => ({
+                users: state.users.map(user => user._id === userId ? response.data : user)
+            }));
+            toast.success('User updated successfully');
+        });
+    },
 
-  updatePlan: async (planId, updates) => {
-    set({ plansLoading: true });
-    try {
-      const response = await axiosInstance.put<SubscriptionPlan>(`/admin/subscription/${planId}`, updates);
-      set((state) => ({
-        plans: state.plans.map(plan => 
-          plan._id === planId ? { ...plan, ...response.data } : plan
-        ),
-        plansError: null
-      }));
-      return response.data;
-    } catch (error: any) {
-      const errorMessage = error.response?.data?.message || 'Failed to update plan';
-      set({ plansError: errorMessage });
-      throw new Error(errorMessage);
-    } finally {
-      set({ plansLoading: false });
-    }
-  },
+    safeDeleteUser: async ({ userId }) => {
+        return get().withLoading('users', async () => {
+            await axiosInstance.delete(`/auth/users/${userId}`);
+            set(state => ({
+                users: state.users.filter(user => user._id !== userId)
+            }));
+            toast.success('User marked as deleted');
+        });
+    },
 
-  importPlans: async (file) => {
-    set({ plansLoading: true });
-    try {
-      const formData = new FormData();
-      formData.append('file', file);
-      await axiosInstance.post('/admin/subscription/import', formData, {
-        headers: {
-          'Content-Type': 'multipart/form-data',
-        },
-      });
-      await get().getAllPlans();
-    } catch (error: any) {
-      const errorMessage = error.response?.data?.message || 'Failed to import plans';
-      set({ plansError: errorMessage });
-      throw new Error(errorMessage);
-    } finally {
-      set({ plansLoading: false });
-    }
-  },
+    finalDeleteUser: async ({ userId }) => {
+        return get().withLoading('users', async () => {
+            await axiosInstance.delete(`/auth/usersFinalDelete/${userId}`);
+            set(state => ({
+                users: state.users.filter(user => user._id !== userId)
+            }));
+            toast.success('User permanently deleted');
+        });
+    },
+
+    // School Actions
+    getAllSchools: async () => {
+        return get().withLoading('schools', async () => {
+            try {
+                const response = await axiosInstance.get<Types.SchoolsResponse>('/schools');
+                const schoolsData = response.data.data || [];
+                set({ schools: schoolsData });
+                return schoolsData; // Now returns School[]
+            } catch (error: any) {
+                set({ schools: [] });
+                const errorMessage = error.response?.data?.message || 'Failed to fetch schools';
+                toast.error(errorMessage);
+                throw new Error(errorMessage);
+            }
+        });
+    },
+
+    getSchoolDetails: async (schoolId: string) => {
+        return get().withLoading('schools', async () => {
+            const response = await axiosInstance.get<Types.School>(`/schools/${schoolId}`);
+            set({ selectedSchool: response.data });
+            return response.data;
+        });
+    },
+
+    updateSchool: async ({ schoolId, updateData }) => {
+        return get().withLoading('schools', async () => {
+            const response = await axiosInstance.put<Types.School>(`/schools/${schoolId}`, updateData);
+            set(state => ({
+                schools: state.schools.map(school => 
+                    school._id === schoolId ? response.data : school
+                ),
+                selectedSchool: response.data
+            }));
+            toast.success('School updated successfully');
+        });
+    },
+
+    // Plan Actions
+    getAllPlans: async () => {
+        return get().withLoading('plans', async () => {
+            const response = await axiosInstance.get<Types.PlanWithSubscribers[]>('/admin/subscription');
+            set({ plans: response.data, plansError: null });
+            return response.data;
+        });
+    },
+
+    createPlan: async (plan) => {
+        return get().withLoading('plans', async () => {
+            const response = await axiosInstance.post<Types.SubscriptionPlan>('/admin/subscription', plan);
+            set(state => ({
+                plans: [...state.plans, { ...response.data, subscriberCount: 0, subscribers: [] }],
+                plansError: null
+            }));
+            toast.success('Plan created successfully');
+            return response.data;
+        });
+    },
+
+    updatePlan: async (planId, updates) => {
+        return get().withLoading('plans', async () => {
+            const response = await axiosInstance.put<Types.SubscriptionPlan>(`/admin/subscription/${planId}`, updates);
+            set(state => ({
+                plans: state.plans.map(plan => 
+                    plan._id === planId ? { ...plan, ...response.data } : plan
+                ),
+                plansError: null
+            }));
+            toast.success('Plan updated successfully');
+            return response.data;
+        });
+    },
+
+    importPlans: async (file) => {
+        return get().withLoading('plans', async () => {
+            const formData = new FormData();
+            formData.append('file', file);
+            
+            await axiosInstance.post('/admin/subscription/import', formData, {
+                headers: { 'Content-Type': 'multipart/form-data' }
+            });
+            
+            await get().getAllPlans();
+            toast.success('Plans imported successfully');
+        });
+    },
 }));

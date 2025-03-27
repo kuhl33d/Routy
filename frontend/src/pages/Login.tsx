@@ -2,19 +2,19 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useForm, SubmitHandler } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useUserStore } from "@/stores/user.store";
+import { useAuth } from "@/components/AuthProvider";
+import { toast } from "react-hot-toast";
+import axios from "@/lib/axios";
 
 const schema = z
   .object({
     email: z.string().email({ message: "Invalid email address" }).optional(),
-    phoneNumber: z
-      .string()
-      // .regex(/^\d{10}$/, { message: "Invalid phone number" })
-      .optional(),
+    phoneNumber: z.string().optional(),
     password: z
       .string()
       .min(6, { message: "Password must be at least 6 characters" }),
@@ -27,7 +27,11 @@ const schema = z
 type FormFields = z.infer<typeof schema>;
 
 export default function LoginPage() {
-  const { login } = useUserStore();
+  const { login: userLogin } = useUserStore();
+  const { login: authLogin } = useAuth();
+  const navigate = useNavigate();
+  const [error, setError] = useState<string | null>(null);
+
   const {
     register,
     handleSubmit,
@@ -39,11 +43,44 @@ export default function LoginPage() {
 
   const onSubmit: SubmitHandler<FormFields> = async (data) => {
     try {
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-      login(data);
-      console.log(data);
-    } catch (err) {
-      console.log(err);
+      setError(null);
+      
+      // Call your login API
+      const response = await axios.post('/auth/login', {
+        email: data.email,
+        phoneNumber: data.phoneNumber,
+        password: data.password
+      });
+
+      if (response.data.success) {
+        // Store the token
+        const { token, user } = response.data;
+        authLogin(token,user);
+        
+        // Update user store
+        userLogin(data);
+
+        // Show success message
+        toast.success('Logged in successfully');
+
+        // Redirect based on user role
+        // if (user.role === 'admin') {
+        //   navigate('/admin');
+        // } else if (user.role === 'school') {
+        //   navigate('/school');
+        // } else if (user.role === 'parent') {
+        //   navigate('/parent');
+        // } else {
+        //   navigate('/dashboard');
+        // }
+        window.location.href = '/';
+      } else {
+        throw new Error(response.data.message || 'Login failed');
+      }
+    } catch (err: any) {
+      const errorMessage = err.response?.data?.message || err.message || 'Login failed';
+      setError(errorMessage);
+      toast.error(errorMessage);
     }
   };
 
@@ -53,6 +90,9 @@ export default function LoginPage() {
         <div className="w-full max-w-md space-y-8">
           <div className="space-y-2 text-center">
             <h1 className="text-3xl font-bold">Welcome to KinderRide</h1>
+            {error && (
+              <p className="text-red-500 text-sm">{error}</p>
+            )}
           </div>
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
             <div className="space-y-2">
@@ -63,7 +103,7 @@ export default function LoginPage() {
                 {...register("email")}
               />
               {errors.email && (
-                <p className="text-red-500">{errors.email.message}</p>
+                <p className="text-red-500 text-sm">{errors.email.message}</p>
               )}
             </div>
             <div className="space-y-2">
@@ -74,7 +114,7 @@ export default function LoginPage() {
                 {...register("phoneNumber")}
               />
               {errors.phoneNumber && (
-                <p className="text-red-500">{errors.phoneNumber.message}</p>
+                <p className="text-red-500 text-sm">{errors.phoneNumber.message}</p>
               )}
             </div>
             <div className="space-y-2">
@@ -86,7 +126,7 @@ export default function LoginPage() {
                 {...register("password")}
               />
               {errors.password && (
-                <p className="text-red-500">{errors.password.message}</p>
+                <p className="text-red-500 text-sm">{errors.password.message}</p>
               )}
             </div>
             <Button

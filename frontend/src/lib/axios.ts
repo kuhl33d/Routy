@@ -5,10 +5,13 @@ const axiosInstance: AxiosInstance = axios.create({
   withCredentials: true, // send cookies to the server
 });
 
-// Add request interceptor for debugging
+// Request interceptor
 axiosInstance.interceptors.request.use(
   (config) => {
-    console.log('Making request to:', config.url);
+    const token = localStorage.getItem('token');
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
     return config;
   },
   (error) => {
@@ -16,15 +19,16 @@ axiosInstance.interceptors.request.use(
   }
 );
 
-// Add response interceptor for debugging
+// Response interceptor
 axiosInstance.interceptors.response.use(
-  (response) => {
-    console.log('Received response:', response.data);
-    return response;
-  },
+  (response) => response,
   (error) => {
-    console.error('API Error:', error.response?.data || error.message);
+    if (error.response?.status === 401) {
+      localStorage.removeItem('token');
+      window.location.href = '/login';
+    }
     return Promise.reject(error);
   }
 );
+
 export default axiosInstance;
