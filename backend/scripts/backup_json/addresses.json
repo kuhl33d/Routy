@@ -1,0 +1,112 @@
+[
+  {
+    "_id": "67b9f416890459949c942fc4",
+    "userId": "67b5b84d2c53dfb7aa0a6d65",
+    "latitude": 4,
+    "longitude": 2,
+    "address": "Hadayek Al Ahram",
+    "city": "giza",
+    "deleted": false,
+    "createdAt": "2025-02-22T15:58:14.577Z",
+    "updatedAt": "2025-02-22T15:58:14.577Z",
+    "__v": 0
+  },
+  {
+    "_id": "67b9f40ecc047788ec61ae0d",
+    "userId": "67b5b84d2c53dfb7aa0a6d65",
+    "latitude": 4,
+    "longitude": 2,
+    "address": "Hadayek Al Ahram",
+    "city": "giza",
+    "deleted": false,
+    "createdAt": "2025-02-22T15:58:06.575Z",
+    "updatedAt": "2025-02-22T15:58:06.575Z",
+    "__v": 0
+  },
+  {
+    "_id": "67ba0d9c444a600ff4c1ac9c",
+    "userId": "67b5b84d2c53dfb7aa0a6d65",
+    "latitude": 8,
+    "longitude": 3,
+    "address": "Hadayek Al Ahram",
+    "city": "giza",
+    "deleted": false,
+    "createdAt": "2025-02-22T17:47:08.883Z",
+    "updatedAt": "2025-02-22T17:47:08.883Z",
+    "__v": 0
+  },
+  {
+    "_id": "67ba11a0aa262b1c42816cb7",
+    "userId": "67b5b84d2c53dfb7aa0a6d65",
+    "latitude": 50,
+    "longitude": 23,
+    "address": "6 October",
+    "city": "giza",
+    "deleted": false,
+    "createdAt": "2025-02-22T18:04:16.192Z",
+    "updatedAt": "2025-02-22T18:04:16.192Z",
+    "__v": 0
+  },
+  {
+    "_id": "67ba1677621221d972654a98",
+    "userId": "67b5b84d2c53dfb7aa0a6d65",
+    "latitude": 50,
+    "longitude": 23,
+    "address": "start location",
+    "city": "Cairo",
+    "deleted": false,
+    "createdAt": "2025-02-22T18:24:55.197Z",
+    "updatedAt": "2025-02-22T18:24:55.197Z",
+    "__v": 0
+  },
+  {
+    "_id": "67ba167f621221d972654a9d",
+    "userId": "67b5b84d2c53dfb7aa0a6d65",
+    "latitude": 50,
+    "longitude": 23,
+    "address": "end location",
+    "city": "Cairo",
+    "deleted": false,
+    "createdAt": "2025-02-22T18:25:03.124Z",
+    "updatedAt": "2025-02-22T18:25:03.124Z",
+    "__v": 0
+  },
+  {
+    "_id": "67bb665a2cf892d6b4f6c0d9",
+    "userId": "67bb5cfd346993e1ad4140c3",
+    "latitude": 50,
+    "longitude": 23,
+    "address": "end location",
+    "city": "Cairo",
+    "deleted": false,
+    "createdAt": "2025-02-23T18:18:02.346Z",
+    "updatedAt": "2025-02-23T18:18:02.346Z",
+    "__v": 0
+  },
+  {
+    "_id": "67bb69e4637ac6cc8bfd140e",
+    "userId": "67b5b84d2c53dfb7aa0a6d65",
+    "latitude": 37.7749,
+    "longitude": -122.4194,
+    "address": "123 Main St",
+    "city": "Anytown",
+    "deleted": false,
+    "createdAt": "2025-02-23T18:33:08.528Z",
+    "updatedAt": "2025-02-24T20:34:49.709Z",
+    "__v": 0,
+    "notes": "Home address",
+    "zipCode": "12345"
+  },
+  {
+    "_id": "67bf1343a352620c0338fbf1",
+    "userId": "67b5b84d2c53dfb7aa0a6d65",
+    "latitude": 80,
+    "longitude": 32,
+    "address": "Pioneer School",
+    "city": "Giza",
+    "deleted": false,
+    "createdAt": "2025-02-26T13:12:35.431Z",
+    "updatedAt": "2025-02-26T13:12:35.431Z",
+    "__v": 0
+  }
+]

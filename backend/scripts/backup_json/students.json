@@ -1,0 +1,87 @@
+[
+  {
+    "_id": "67bb8408be6d7f0bd735625d",
+    "parentId": [
+      "67bb775fa177783aeaa77b83"
+    ],
+    "schoolId": "67ba0db9444a600ff4c1aca2",
+    "status": "Waiting",
+    "routeId": "67bb47baead2ef8abc78c5ff",
+    "age": 20,
+    "grade": "Grade 13",
+    "enrolled": false,
+    "fees": 0,
+    "userId": "67bb8408be6d7f0bd735625b",
+    "createdAt": "2025-02-23T20:24:41.055Z",
+    "updatedAt": "2025-02-23T20:24:41.055Z",
+    "__v": 0
+  },
+  {
+    "_id": "67bb8f693e0b11baaa0ce6ba",
+    "parentId": [
+      "67bb775fa177783aeaa77b83"
+    ],
+    "schoolId": "67ba0db9444a600ff4c1aca2",
+    "status": "Waiting",
+    "routeId": "67bb47baead2ef8abc78c5ff",
+    "userId": "67bb8f693e0b11baaa0ce6b8",
+    "age": 20,
+    "grade": "Grade 16",
+    "enrolled": false,
+    "fees": 0,
+    "createdAt": "2025-02-23T21:13:13.875Z",
+    "updatedAt": "2025-02-24T19:14:45.577Z",
+    "__v": 0
+  },
+  {
+    "_id": "67bcccbd654c97c90f9b2802",
+    "parentId": [
+      "67bcc6d69368b8d27604640e"
+    ],
+    "schoolId": "67ba0db9444a600ff4c1aca2",
+    "status": "Waiting",
+    "routeId": "67bb47baead2ef8abc78c5ff",
+    "userId": "67bcccbc654c97c90f9b2800",
+    "age": 20,
+    "grade": "Grade 13",
+    "enrolled": false,
+    "fees": 0,
+    "createdAt": "2025-02-24T19:47:09.220Z",
+    "updatedAt": "2025-02-24T19:47:09.220Z",
+    "__v": 0
+  },
+  {
+    "_id": "67bee7dc5668bf2832d8fe8c",
+    "parentId": [
+      "67bcc6d69368b8d27604640e"
+    ],
+    "schoolId": "67ba0db9444a600ff4c1aca2",
+    "status": "Waiting",
+    "routeId": "67bb47baead2ef8abc78c5ff",
+    "userId": "67bee7dc5668bf2832d8fe8a",
+    "age": 20,
+    "grade": "Grade 13",
+    "enrolled": false,
+    "fees": 0,
+    "createdAt": "2025-02-26T10:07:24.356Z",
+    "updatedAt": "2025-02-26T10:07:24.356Z",
+    "__v": 0
+  },
+  {
+    "_id": "67bf24ca950d24ea2aaf2050",
+    "parentId": [
+      "67bcc6d69368b8d27604640e"
+    ],
+    "schoolId": "67bee7fa5668bf2832d8fe95",
+    "status": "Waiting",
+    "routeId": "67bf1242a352620c0338fb64",
+    "userId": "67bf24ca950d24ea2aaf204e",
+    "age": 20,
+    "grade": "Grade 15",
+    "enrolled": false,
+    "fees": 0,
+    "createdAt": "2025-02-26T14:27:22.512Z",
+    "updatedAt": "2025-02-26T14:27:22.512Z",
+    "__v": 0
+  }
+]
