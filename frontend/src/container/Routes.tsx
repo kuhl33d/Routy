@@ -1,6 +1,6 @@
 import { Routes, Route, Navigate } from "react-router-dom";
 import Home from "@/pages/Home";
-import DriverDashboard from "@/pages/DriverDashboard.old";
+import DriverDashboard from "@/pages/DriverDashboard";
 import LoginPage from "@/pages/Login";
 import SignUpPage from "@/pages/Signup";
 // import AdminDashboard from "@/pages/Admin";
