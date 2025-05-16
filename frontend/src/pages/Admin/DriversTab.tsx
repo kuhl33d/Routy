@@ -1,6 +1,6 @@
 // src/components/DriversTab.tsx
 import React, { useState, useEffect, useCallback, useMemo } from "react";
-import { Plus } from "lucide-react";
+import { Plus, Edit2 } from "lucide-react";
 import {
   Table,
   TableBody,
@@ -27,6 +27,8 @@ import { Driver, CreateDriverDTO } from "@/types/driver.types";
 const DriversTab: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [selectedDriver, setSelectedDriver] = useState<Driver | null>(null);
 
   const { drivers, loading, getAllDrivers, updateDriver, createDriver } =
     useDriverStore();
@@ -78,6 +80,41 @@ const DriversTab: React.FC = () => {
     }
   };
 
+  // Edit a driver
+  const handleEditDriver = async (formData: FormData) => {
+    try {
+      if (!selectedDriver?._id) return;
+
+      const phoneNumberValue = formData.get("phoneNumber") as string | null;
+      const dto: Partial<CreateDriverDTO> = {
+        name: formData.get("name") as string,
+        email: formData.get("email") as string,
+        phoneNumber: phoneNumberValue ? [phoneNumberValue] : undefined,
+        licenseNumber: formData.get("licenseNumber") as string,
+        vehicleType: formData.get("vehicleType") as string,
+      };
+
+      // Only include password if it's provided and non-empty
+      const password = formData.get("password") as string;
+      if (password && password.trim() !== "") {
+        dto.password = password;
+      }
+
+      await updateDriver(selectedDriver._id, dto);
+      setIsEditModalOpen(false);
+      toast.success("Driver updated successfully");
+      await fetchDrivers();
+    } catch (err: unknown) {
+      if (err instanceof Error) toast.error(err.message || "Failed to update driver");
+    }
+  };
+
+  // Open edit modal and set selected driver
+  const handleOpenEditModal = (driver: Driver) => {
+    setSelectedDriver(driver);
+    setIsEditModalOpen(true);
+  };
+
   // Filter in-memory by email
   const filteredDrivers = useMemo(
     () =>
@@ -124,6 +161,63 @@ const DriversTab: React.FC = () => {
       </div>
       <Button type="submit" className="w-full">
         Create Driver
+      </Button>
+    </form>
+  );
+
+  // The form inside the Edit Driver dialog
+  const DriverEditForm: React.FC<{ 
+    onSubmit: (fd: FormData) => Promise<void>;
+    driver: Driver;
+  }> = ({
+    onSubmit,
+    driver
+  }) => (
+    <form
+      onSubmit={(e) => {
+        e.preventDefault();
+        onSubmit(new FormData(e.currentTarget));
+      }}
+      className="space-y-4"
+    >
+      <div className="space-y-2">
+        <label className="text-sm font-medium">Driver Name</label>
+        <Input name="name" defaultValue={driver.userId?.name || ""} required />
+      </div>
+      <div className="space-y-2">
+        <label className="text-sm font-medium">Email</label>
+        <Input name="email" type="email" defaultValue={driver.userId?.email || ""} required />
+      </div>
+      <div className="space-y-2">
+        <label className="text-sm font-medium">Password (leave empty to keep current)</label>
+        <Input name="password" type="password" />
+      </div>
+      <div className="space-y-2">
+        <label className="text-sm font-medium">Phone Number</label>
+        <Input 
+          name="phoneNumber" 
+          type="tel" 
+          defaultValue={driver.userId?.phoneNumber?.[0] || ""}
+        />
+      </div>
+      <div className="space-y-2">
+        <label className="text-sm font-medium">License Number</label>
+        <Input 
+          name="licenseNumber" 
+          defaultValue={driver.licenseNumber || ""} 
+          required 
+        />
+      </div>
+      <div className="space-y-2">
+        <label className="text-sm font-medium">Vehicle Type</label>
+        <Input 
+          name="vehicleType" 
+          defaultValue={driver.vehicleType || ""} 
+          required 
+        />
+      </div>
+      <Button type="submit" className="w-full">
+        Update Driver
       </Button>
     </form>
   );
@@ -214,6 +308,14 @@ const DriversTab: React.FC = () => {
                 </Badge>
               </TableCell>
               <TableCell className="space-x-2">
+                {/* Edit */}
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => handleOpenEditModal(driver)}
+                >
+                  <Edit2 className="h-4 w-4" />
+                </Button>
                 {/* Suspend */}
                 <Button
                   variant="ghost"
@@ -224,21 +326,29 @@ const DriversTab: React.FC = () => {
                 >
                   Suspend
                 </Button>
-                {/* (Optional) Add Delete button:
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className="text-red-500"
-                  onClick={() => handleDelete(driver._id)}
-                >
-                  Delete
-                </Button>
-                */}
               </TableCell>
             </TableRow>
           ))}
         </TableBody>
       </Table>
+      )}
+
+      {/* Edit Driver Modal */}
+      {selectedDriver && (
+        <Dialog
+          open={isEditModalOpen}
+          onOpenChange={setIsEditModalOpen}
+        >
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Edit Driver</DialogTitle>
+            </DialogHeader>
+            <DriverEditForm 
+              onSubmit={handleEditDriver} 
+              driver={selectedDriver} 
+            />
+          </DialogContent>
+        </Dialog>
       )}
     </div>
   );
