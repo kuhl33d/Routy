@@ -48,33 +48,37 @@ export const createDriver = controllerWrapper(
 export const getAllDrivers = controllerWrapper(
   "getAllDrivers",
   async (req, res) => {
-    const { page = 1, limit = 10 } = req.query;
-    const pageNum  = Number(page)  || 1;
-    const limitNum = Number(limit) || 10;
+    try {
+      let selector = {};
+      
+      if (req.user.role === "school") {
+        const school = await School.findOne({ userId: req.user._id });
+        if (!school) {
+          return res
+            .status(404)
+            .json({ success: false, message: "School not found" });
+        }
+        selector = { schoolId: school._id };
+      }
 
-    let selector = {};
-    if (req.user.role === "school") {
-      const school = await School.findOne({ userId: req.user._id });
-      selector = { schoolId: school._id };
+      const drivers = await Driver.find(selector)
+        .populate("busId", "busNumber status")
+        .populate("userId", "name email phoneNumber")
+        .populate("schoolId", "name")
+        .sort("-createdAt");
+
+      return res.status(200).json({
+        success: true,
+        data: drivers
+      });
+    } catch (error) {
+      console.error("Error in getAllDrivers:", error);
+      return res.status(500).json({
+        success: false,
+        message: "Server error fetching drivers",
+        error: error.message
+      });
     }
-
-    const result = await paginateQuery(
-      pageNum,
-      limitNum,
-      Driver.find(selector)
-        .populate("busId", "busNumber")
-        .populate("userId")
-        .sort("-createdAt")
-    );
-
-    
-    return res.status(200).json({
-      success: true,
-      data: result.data,    
-      total: result.total,
-      page:  result.page,
-      limit: result.limit,
-    });
   }
 );
 

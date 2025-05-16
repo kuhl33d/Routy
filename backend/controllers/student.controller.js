@@ -8,82 +8,45 @@ import { controllerWrapper } from "../utils/wrappers.js";
 export const getAllStudents = controllerWrapper(
   "getAllStudents",
   async (req, res) => {
-    const { page, limit } = req.body;
-    let school;
+    try {
+      const { page, limit } = req.query;
+      let selector = {};
 
-    if (req.user.role === "school") {
-      school = await School.findOne({ userId: req.user._id });
-      if (!school) {
-        return res
-          .status(404)
-          .json({ success: false, message: "School not found" });
+      if (req.user.role === "school") {
+        const school = await School.findOne({ userId: req.user._id });
+        if (!school) {
+          return res
+            .status(404)
+            .json({ success: false, message: "School not found" });
+        }
+        selector = { schoolId: school._id };
       }
+
+      const students = await Student.find(selector)
+        .populate("userId", "name email")
+        .populate({
+          path: "parentId",
+          populate: {
+            path: "userId",
+            select: "name email phoneNumber",
+          },
+        })
+        .populate("schoolId", "name")
+        .populate("routeId", "name")
+        .sort("-createdAt");
+
+      return res.status(200).json({ 
+        success: true, 
+        data: students
+      });
+    } catch (error) {
+      console.error("Error in getAllStudents:", error);
+      return res.status(500).json({ 
+        success: false, 
+        message: "Server error fetching students", 
+        error: error.message 
+      });
     }
-
-    const baseQuery =
-      req.user.role === "admin"
-        ? Student.find()
-        : Student.find({ schoolId: school._id });
-
-    const query = baseQuery
-      .populate({
-        path: "userId",
-        select: "name age grade",
-      })
-      .populate({
-        path: "parentId",
-        populate: {
-          path: "userId",
-          select: "name email phoneNumber",
-          model: "User",
-        },
-      })
-      .populate({
-        path: "routeId",
-        select: "name",
-        model: "Route", // Make sure to specify the model name
-      })
-      .populate("schoolId pickupLocation");
-
-    const result = await paginateQuery(page, limit, query);
-
-    // Transform the response
-    const transformedData = result.data.map((student) => ({
-      _id: student._id,
-      user: {
-        name: student.userId?.name,
-        age: student.age,
-        grade: student.grade,
-      },
-      parents:
-        student.parentId?.map((parent) => ({
-          _id: parent._id,
-          name: parent.userId?.name,
-          email: parent.userId?.email,
-          phoneNumber: parent.userId?.phoneNumber || [],
-        })) || [],
-      route: student.routeId
-        ? {
-            _id: student.routeId._id,
-            name: student.routeId.name,
-          }
-        : null,
-      schoolId: student.schoolId,
-      status: student.status,
-      enrolled: student.enrolled,
-      fees: student.fees,
-      createdAt: student.createdAt,
-      updatedAt: student.updatedAt,
-    }));
-
-    return res.status(200).json({
-      success: true,
-      data: transformedData,
-      total: result.total,
-      limit: result.limit,
-      page: result.page,
-      pages: result.pages,
-    });
   }
 );
 

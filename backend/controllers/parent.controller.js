@@ -6,41 +6,38 @@ import { controllerWrapper } from "../utils/wrappers.js";
 export const getAllParents = controllerWrapper(
   "getAllParents",
   async (req, res) => {
-    let selector = {};
-    if (req.user.role === "school") {
-      const school = await School.findOne({ userId: req.user._id });
-      if (!school) return res.status(404).json({ message: "School not found" });
-      // const parents = await Parent.find({
-      //   children: { $elemMatch: { schoolId: school._id } },
-      // }).populate("children");
-      // console.log(parents);
-
-      const parents = await Parent.find().populate("children");
-      const filteredParents = parents.filter((parent) => {
-        let exist = false;
-        parent.children.forEach((child) => {
-          if (child.schoolId === school._id) exist = true;
+    try {
+      let selector = {};
+      if (req.user.role === "school") {
+        const school = await School.findOne({ userId: req.user._id });
+        if (!school) return res.status(404).json({ success: false, message: "School not found" });
+        
+        const parents = await Parent.find()
+          .populate("children")
+          .populate("userId", "name email phoneNumber")
+          .sort("-createdAt");
+          
+        const filteredParents = parents.filter((parent) => {
+          let exist = false;
+          parent.children.forEach((child) => {
+            if (child.schoolId?.toString() === school._id.toString()) exist = true;
+          });
+          return exist;
         });
-        return exist;
-      });
-      return res.status(200).json({ success: true, data: filteredParents });
+        
+        return res.status(200).json({ success: true, data: filteredParents });
+      }
+      
+      const parents = await Parent.find()
+        .populate("children")
+        .populate("userId", "name email phoneNumber")
+        .sort("-createdAt");
+
+      return res.status(200).json({ success: true, data: parents });
+    } catch (error) {
+      console.error("Error in getAllParents:", error);
+      return res.status(500).json({ success: false, message: "Server error fetching parents", error: error.message });
     }
-    const parents = await Parent.find()
-      .populate("children")
-      .populate({ path: "userId", select: "name" })
-      .sort("-createdAt");
-
-    const result = parents.map((parent) => ({
-      _id: parent._id,
-      name: parent.userId ? parent.userId.name : null,
-      children: parent.children,
-      userId: parent.userId ? parent.userId._id : null,
-      createdAt: parent.createdAt,
-      updatedAt: parent.updatedAt,
-      __v: parent.__v,
-    }));
-
-    res.json(result);
   }
 );
 
