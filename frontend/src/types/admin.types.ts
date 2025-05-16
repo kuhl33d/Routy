@@ -125,3 +125,54 @@ export interface SchoolsResponse {
     data: School[];
     message?: string;
 }
+
+export interface Parent {
+    _id: string;
+    userId: {
+        _id: string;
+        name: string;
+        email: string;
+        phoneNumber?: string[];
+        addresses: string[];
+        role: string;
+    };
+    children: string[];
+    status: 'active' | 'inactive' | 'suspended';
+    createdAt?: string;
+    updatedAt?: string;
+}
+
+export interface Student {
+    _id: string;
+    name: string;
+    grade: string;
+    schoolId: {
+        _id: string;
+        name: string;
+    };
+    parentId: {
+        _id: string;
+        name: string;
+    };
+    status: 'active' | 'inactive' | 'suspended';
+    createdAt?: string;
+    updatedAt?: string;
+}
+
+export interface Driver {
+    _id: string;
+    userId: {
+        _id: string;
+        name: string;
+        email: string;
+        phoneNumber?: string[];
+        addresses: string[];
+        role: string;
+    };
+    licenseNumber: string;
+    vehicleType: string;
+    busId?: string;
+    status: 'active' | 'inactive' | 'suspended';
+    createdAt?: string;
+    updatedAt?: string;
+}

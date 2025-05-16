@@ -88,10 +88,26 @@ interface AdminStore extends BaseState, DashboardState, UserState, SchoolState, 
     updatePlan: (planId: string, updates: Partial<Types.SubscriptionPlan>) => Promise<Types.SubscriptionPlan>;
     importPlans: (file: File) => Promise<void>;
     
-    createAdmin: (adminData: Partial<Types.User> & { password: string }) => Promise<Types.User>;}
+    createAdmin: (adminData: Partial<Types.User> & { password: string }) => Promise<Types.User>;
+    
+    // Parent Actions
+    parents: Types.Parent[];
+    getAllParents: () => Promise<void>;
+    updateParent: (params: { parentId: string; updateData: Partial<Types.Parent> }) => Promise<void>;
+    
+    // Student Actions
+    students: Types.Student[];
+    getAllStudents: () => Promise<void>;
+    updateStudent: (params: { studentId: string; updateData: Partial<Types.Student> }) => Promise<void>;
+    
+    // Driver Actions
+    drivers: Types.Driver[];
+    getAllDrivers: () => Promise<void>;
+    updateDriver: (params: { driverId: string; updateData: Partial<Types.Driver> }) => Promise<void>;
+}
 
 // Initial State
-const initialState: Omit<AdminStore, 'withLoading' | 'checkAuth' | 'getDashboardData' | 'getTotalReport' | 'getSystemState' | 'getAllUsers' | 'updateUser' | 'safeDeleteUser' | 'finalDeleteUser' | 'getAllSchools' | 'getSchoolDetails' | 'updateSchool' | 'getAllPlans' | 'createPlan' | 'updatePlan' | 'importPlans' | 'createAdmin'> = {
+const initialState: Omit<AdminStore, 'withLoading' | 'checkAuth' | 'getDashboardData' | 'getTotalReport' | 'getSystemState' | 'getAllUsers' | 'updateUser' | 'safeDeleteUser' | 'finalDeleteUser' | 'getAllSchools' | 'getSchoolDetails' | 'updateSchool' | 'getAllPlans' | 'createPlan' | 'updatePlan' | 'importPlans' | 'createAdmin' | 'getAllParents' | 'updateParent' | 'getAllStudents' | 'updateStudent' | 'getAllDrivers' | 'updateDriver'> = {
     loading: false,
     error: null,
     isAuthenticated: !!getAuthToken(),
@@ -109,6 +125,9 @@ const initialState: Omit<AdminStore, 'withLoading' | 'checkAuth' | 'getDashboard
     plans: [],
     plansLoading: false,
     plansError: null,
+    parents: [],
+    students: [],
+    drivers: [],
 };
 
 // Axios interceptors
@@ -342,6 +361,102 @@ export const useAdminStore = create<AdminStore>((set, get) => ({
             }));
             toast.success('Admin created successfully');
             return response.data;
+        });
+    },
+
+    // Parent Actions
+    getAllParents: async () => {
+        return get().withLoading('users', async () => {
+            try {
+                const response = await axiosInstance.get<{ success: boolean; data: Types.Parent[] }>('/parents');
+                set({ parents: response.data.data });
+            } catch (error: any) {
+                const errorMessage = error.response?.data?.message || 'Failed to fetch parents';
+                toast.error(errorMessage);
+                throw new Error(errorMessage);
+            }
+        });
+    },
+
+    updateParent: async ({ parentId, updateData }) => {
+        return get().withLoading('users', async () => {
+            try {
+                const response = await axiosInstance.put<{ success: boolean; data: Types.Parent }>(`/parents/${parentId}`, updateData);
+                set(state => ({
+                    parents: state.parents.map(parent => 
+                        parent._id === parentId ? response.data.data : parent
+                    )
+                }));
+                toast.success('Parent updated successfully');
+            } catch (error: any) {
+                const errorMessage = error.response?.data?.message || 'Failed to update parent';
+                toast.error(errorMessage);
+                throw new Error(errorMessage);
+            }
+        });
+    },
+
+    // Student Actions
+    getAllStudents: async () => {
+        return get().withLoading('users', async () => {
+            try {
+                const response = await axiosInstance.get<{ success: boolean; data: Types.Student[] }>('/students');
+                set({ students: response.data.data });
+            } catch (error: any) {
+                const errorMessage = error.response?.data?.message || 'Failed to fetch students';
+                toast.error(errorMessage);
+                throw new Error(errorMessage);
+            }
+        });
+    },
+
+    updateStudent: async ({ studentId, updateData }) => {
+        return get().withLoading('users', async () => {
+            try {
+                const response = await axiosInstance.put<{ success: boolean; data: Types.Student }>(`/students/${studentId}`, updateData);
+                set(state => ({
+                    students: state.students.map(student => 
+                        student._id === studentId ? response.data.data : student
+                    )
+                }));
+                toast.success('Student updated successfully');
+            } catch (error: any) {
+                const errorMessage = error.response?.data?.message || 'Failed to update student';
+                toast.error(errorMessage);
+                throw new Error(errorMessage);
+            }
+        });
+    },
+
+    // Driver Actions
+    getAllDrivers: async () => {
+        return get().withLoading('users', async () => {
+            try {
+                const response = await axiosInstance.get<{ success: boolean; data: Types.Driver[] }>('/drivers');
+                set({ drivers: response.data.data });
+            } catch (error: any) {
+                const errorMessage = error.response?.data?.message || 'Failed to fetch drivers';
+                toast.error(errorMessage);
+                throw new Error(errorMessage);
+            }
+        });
+    },
+
+    updateDriver: async ({ driverId, updateData }) => {
+        return get().withLoading('users', async () => {
+            try {
+                const response = await axiosInstance.put<{ success: boolean; data: Types.Driver }>(`/drivers/${driverId}`, updateData);
+                set(state => ({
+                    drivers: state.drivers.map(driver => 
+                        driver._id === driverId ? response.data.data : driver
+                    )
+                }));
+                toast.success('Driver updated successfully');
+            } catch (error: any) {
+                const errorMessage = error.response?.data?.message || 'Failed to update driver';
+                toast.error(errorMessage);
+                throw new Error(errorMessage);
+            }
         });
     },
 }));
