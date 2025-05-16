@@ -4,37 +4,30 @@ import DataGridTemplatePage from "@/components/DataGridTemplatePage";
 import AddModal from "@/components/AddModal";
 import ParentDetailsModal from "./ParentDetailsModal";
 import { useSchoolStore } from "@/stores/school.store";
+import EditModal from "@/components/EditModal";
+import toast from "react-hot-toast";
 
 const StudentsPage: React.FC = () => {
-  const { students, getAllStudents, finalDeleteStudent } = useSchoolStore();
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const { 
+    students, 
+    loading, 
+    error,
+    getAllStudents, 
+    createStudent, 
+    updateStudent, 
+    finalDeleteStudent 
+  } = useSchoolStore();
 
+  // Fetch students on mount
   useEffect(() => {
-    const fetchStudents = async () => {
-      try {
-        setLoading(true);
-        await getAllStudents();
-      } catch (err) {
-        setError("Failed to fetch students");
-        console.error(err);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchStudents();
+    getAllStudents();
   }, [getAllStudents]);
 
   // State for modals
-  const [open, setOpen] = useState(false);
-  const [studentDetails, setStudentDetails] = useState({
-    name: "",
-    parentEmail: "",
-    age: "",
-    grade: "",
-    schoolId: "",
-  });
-  const [parentDetailsModalOpen, setParentDetailsModalOpen] = useState(false);
+  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [isParentDetailsModalOpen, setIsParentDetailsModalOpen] = useState(false);
+  const [selectedStudent, setSelectedStudent] = useState<any>(null);
   const [selectedStudentParents, setSelectedStudentParents] = useState<
     Array<{
       name?: string;
@@ -43,10 +36,93 @@ const StudentsPage: React.FC = () => {
     }>
   >([]);
 
+  const [studentForm, setStudentForm] = useState({
+    name: "",
+    parentEmail: "",
+    age: "",
+    grade: "",
+    schoolId: "",
+  });
+
+  // Reset form when opening create modal
+  const handleOpenCreateModal = () => {
+    setStudentForm({
+      name: "",
+      parentEmail: "",
+      age: "",
+      grade: "",
+      schoolId: "",
+    });
+    setIsCreateModalOpen(true);
+  };
+
+  // Set form data when opening edit modal
+  const handleOpenEditModal = (id: string) => {
+    const student = Array.isArray(students?.data) 
+      ? students.data.find((s) => s._id === id)
+      : null;
+    
+    if (student) {
+      setSelectedStudent(student);
+      setStudentForm({
+        name: student.user?.name || "",
+        parentEmail: student.parents?.[0]?.email || "",
+        age: student.user?.age?.toString() || "",
+        grade: student.user?.grade || "",
+        schoolId: student.schoolId?._id || "",
+      });
+      setIsEditModalOpen(true);
+    } else {
+      toast.error("Student not found");
+    }
+  };
+
   // Handle opening Parent Details Modal
   const handleParentDetailsModalOpen = (parents) => {
     setSelectedStudentParents(parents);
-    setParentDetailsModalOpen(true);
+    setIsParentDetailsModalOpen(true);
+  };
+
+  // Handle form input changes
+  const handleFormChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setStudentForm((prev) => ({ ...prev, [name]: value }));
+  };
+
+  // Handle create student submission
+  const handleCreateStudent = async () => {
+    try {
+      await createStudent({
+        name: studentForm.name,
+        parentEmail: studentForm.parentEmail,
+        age: parseInt(studentForm.age),
+        grade: studentForm.grade,
+        schoolId: studentForm.schoolId,
+      });
+      setIsCreateModalOpen(false);
+      getAllStudents(); // Refresh the list
+    } catch (err) {
+      console.error("Error creating student:", err);
+    }
+  };
+
+  // Handle update student submission
+  const handleUpdateStudent = async () => {
+    if (!selectedStudent?._id) return;
+    
+    try {
+      await updateStudent(selectedStudent._id, {
+        name: studentForm.name,
+        parentEmail: studentForm.parentEmail,
+        age: parseInt(studentForm.age),
+        grade: studentForm.grade,
+        schoolId: studentForm.schoolId,
+      });
+      setIsEditModalOpen(false);
+      getAllStudents(); // Refresh the list
+    } catch (err) {
+      console.error("Error updating student:", err);
+    }
   };
 
   // Transform the students data for the DataGrid
@@ -91,9 +167,26 @@ const StudentsPage: React.FC = () => {
     },
   ];
 
-  if (loading) return <div>Loading students...</div>;
-  if (error) return <div>Error: {error}</div>;
-  if (!transformedStudents.length) return <div>No students found</div>;
+  // Show loading state
+  if (loading) return <div className="p-4">Loading students...</div>;
+  
+  // Show error state
+  if (error) return <div className="p-4 text-red-500">Error: {error}</div>;
+  
+  // Show empty state
+  if (!transformedStudents || transformedStudents.length === 0) {
+    return (
+      <div className="p-4 text-center">
+        <p className="mb-4">No students found</p>
+        <button 
+          onClick={handleOpenCreateModal}
+          className="px-4 py-2 bg-[#F7B32B] text-black rounded-md hover:bg-[#F7B32B]/90"
+        >
+          Add a Student
+        </button>
+      </div>
+    );
+  }
 
   return (
     <div>
@@ -101,49 +194,98 @@ const StudentsPage: React.FC = () => {
         title="Students"
         columns={columns}
         rows={transformedStudents}
-        handleAdd={() => setOpen(true)}
+        handleAdd={handleOpenCreateModal}
         handleExport={() => console.log("Export Students")}
-        handleEdit={(id) => console.log(`Edit Student with id: ${id}`)}
+        handleEdit={(id) => handleOpenEditModal(String(id))}
         handleDelete={async (id) => {
-          await finalDeleteStudent(String(id));
-          getAllStudents();
-          console.log(`Student ${id} deleted successfully`);
+          try {
+            await finalDeleteStudent(String(id));
+            toast.success("Student deleted successfully");
+            await getAllStudents(); // Refresh the list
+          } catch (err) {
+            console.error("Error deleting student:", err);
+            toast.error("Failed to delete student");
+          }
         }}
         searchPlaceholder="Search students..."
       />
 
+      {/* Create Student Modal */}
       <AddModal
-        open={open}
-        handleClose={() => setOpen(false)}
-        handleSubmit={() => {
-          console.log("Student Details Submitted:", studentDetails);
-          setOpen(false);
-        }}
-        title="Add Student Details"
+        open={isCreateModalOpen}
+        handleClose={() => setIsCreateModalOpen(false)}
+        handleSubmit={handleCreateStudent}
+        title="Add Student"
         fields={[
-          { name: "name", label: "Student Name", value: studentDetails.name },
+          { 
+            name: "name", 
+            label: "Student Name", 
+            value: studentForm.name 
+          },
           {
             name: "parentEmail",
             label: "Parent Email",
-            value: studentDetails.parentEmail,
+            value: studentForm.parentEmail,
           },
-          { name: "age", label: "Age", value: studentDetails.age },
-          { name: "grade", label: "Grade", value: studentDetails.grade },
+          { 
+            name: "age", 
+            label: "Age", 
+            value: studentForm.age 
+          },
+          { 
+            name: "grade", 
+            label: "Grade", 
+            value: studentForm.grade 
+          },
           {
             name: "schoolId",
             label: "School ID",
-            value: studentDetails.schoolId,
+            value: studentForm.schoolId,
           },
         ]}
-        handleChange={(e) => {
-          const { name, value } = e.target;
-          setStudentDetails((prev) => ({ ...prev, [name]: value }));
-        }}
+        handleChange={handleFormChange}
       />
 
+      {/* Edit Student Modal */}
+      <EditModal
+        open={isEditModalOpen}
+        handleClose={() => setIsEditModalOpen(false)}
+        handleSubmit={handleUpdateStudent}
+        title="Edit Student"
+        fields={[
+          { 
+            name: "name", 
+            label: "Student Name", 
+            value: studentForm.name 
+          },
+          {
+            name: "parentEmail",
+            label: "Parent Email",
+            value: studentForm.parentEmail,
+          },
+          { 
+            name: "age", 
+            label: "Age", 
+            value: studentForm.age 
+          },
+          { 
+            name: "grade", 
+            label: "Grade", 
+            value: studentForm.grade 
+          },
+          {
+            name: "schoolId",
+            label: "School ID",
+            value: studentForm.schoolId,
+          },
+        ]}
+        handleChange={handleFormChange}
+      />
+
+      {/* Parent Details Modal */}
       <ParentDetailsModal
-        open={parentDetailsModalOpen}
-        handleClose={() => setParentDetailsModalOpen(false)}
+        open={isParentDetailsModalOpen}
+        handleClose={() => setIsParentDetailsModalOpen(false)}
         parents={selectedStudentParents}
       />
     </div>
